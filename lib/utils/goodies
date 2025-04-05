@@ -1,0 +1,75 @@
+
+//background color
+          backgroundColor: const Color.fromARGB(255, 240, 232, 255),
+
+//ElevatedButton
+ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+            ),
+            child: const Text('Se déconnecter',
+                style: TextStyle(color: Colors.white)),
+          ),
+
+//DropdownFormField
+DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(
+                        labelText: 'Emplacement',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.location_pin),
+                      ),
+                      value: _selectedLocation,
+                      hint: const Text('Sélectionnez l\'emplacement'),
+                      items: _location
+                          .map((location) => DropdownMenuItem(
+                                value: location,
+                                child: Text(location),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedLocation = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Veuillez la localisation de l\'équipement';
+                        }
+                        return null;
+                      },
+                    ),
+
+
+//Styled Containers
+
+//Get the user information from firestore
+ Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return const Center(child: Text('Veuillez vous connecter.'));
+    }
+
+    return StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final userData = snapshot.data!;
+          final name = userData['name'] ?? '';
+
+          return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Text('Bienvenue $name'),
+
+//Ajouter une icone dans le bottomnavigation bar
+BottomNavigationBarItem(
+            icon: Icon(Icons.receipt),
+            label: 'Mes Commandes',
+          ),

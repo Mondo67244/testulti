@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "888572217070",
+    "project_id": "mondodev2",
+    "storage_bucket": "mondodev2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:888572217070:android:1c3179556fd7c7118955ff",
+        "android_client_info": {
+          "package_name": "com.mondo.dev.testulti"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpPPjrNffXTRwEmOf-goojdWi4yJVkXIw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

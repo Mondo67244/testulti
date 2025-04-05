@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/employee.dart';
 import '../constants/app_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/activity_service.dart';
 
 class AuthService {
@@ -190,15 +191,13 @@ class AuthService {
   // ...
 
   Future<void> signOut(BuildContext context) async {
-    try {
-      await _auth.signOut();
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        AppConstants.routeLogin,
-        (Route<dynamic> route) => false, // Supprime toutes les routes précédentes
-      );
-    } catch (e) {
-      rethrow;
-    }
+    await _auth.signOut();
+    // Optionally, clear user data from SharedPreferences
+    await SharedPreferences.getInstance().then((prefs) {
+      prefs.remove('user_data');
+    });
+    // Redirect to login page
+    Navigator.pushReplacementNamed(context, AppConstants.routeLogin);
   }
 
   // Récupérer l'utilisateur actuellement connecté

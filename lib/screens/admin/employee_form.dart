@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../constants/app_constants.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class EmployeeForm extends StatefulWidget {
   const EmployeeForm({Key? key}) : super(key: key);
@@ -30,24 +29,19 @@ class _EmployeeFormState extends State<EmployeeForm> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.pop(context);
-        return false;
-      },
-      child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 240, 232, 255),
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text('Créer un utilisateur'),
-          centerTitle: true,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+    return Scaffold(
+          backgroundColor: const Color.fromARGB(255, 240, 232, 255),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text('Créer un utilisateur'),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -165,7 +159,7 @@ class _EmployeeFormState extends State<EmployeeForm> {
           ),
         ),
       ),
-    ),);
+    );
   }
 
   void _showCategoryDropdown() {}
@@ -177,30 +171,15 @@ class _EmployeeFormState extends State<EmployeeForm> {
       });
 
       try {
-        // Sauvegarder les informations de l'utilisateur administrateur actuel
-        final FirebaseAuth auth = FirebaseAuth.instance;
-        final User? adminUser = auth.currentUser;
-        
-        if (adminUser == null) {
-          throw Exception('Aucun administrateur connecté');
-        }
-
-        // Stocker les informations d'authentification de l'administrateur
-        final String adminEmail = adminUser.email!;
-        final prefs = await SharedPreferences.getInstance();
-        final String? adminPassword = await prefs.getString('admin_password');
-        
-        // Créer le nouvel utilisateur avec un autre instance de FirebaseAuth
-        final newUserCredential = await auth.createUserWithEmailAndPassword(
+        // Créer l'utilisateur sans se connecter automatiquement
+        final UserCredential userCredential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
 
-        // Récupérer l'UID du nouvel utilisateur pour l'utiliser dans Firestore
-        final String newUserUid = newUserCredential.user!.uid;
-
         Map<String, dynamic> userData = {
-          'email': newUserCredential.user!.email,
+          'email': userCredential.user!.email,
           'isActive': true,
           'joinDate': FieldValue.serverTimestamp(),
           'isProfileComplete': false,
@@ -209,70 +188,45 @@ class _EmployeeFormState extends State<EmployeeForm> {
 
         if (_selectedRole == 'Fournisseur') {
           userData['category'] = _selectedCategory;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Compte fournisseur créé avec succès'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        } else if (_selectedRole == 'Maintenancier') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Compte maintenancier créé avec succès'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        } else if (_selectedRole == 'Utilisateur') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Compte utilisateur créé avec succès'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        } else if (_selectedRole == 'Admin') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Compte administrateur créé avec succès'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
         }
 
         // Enregistrer les données utilisateur dans Firestore
         await FirebaseFirestore.instance
             .collection(AppConstants.usersCollection)
-            .doc(newUserUid)
+            .doc(userCredential.user!.uid)
             .set(userData);
-
-        // Déconnecter immédiatement le nouvel utilisateur
-        await auth.signOut();
-
-        // Reconnecter l'administrateur
-        if (adminPassword != null) {
-          try {
-            await auth.signInWithEmailAndPassword(
-              email: adminEmail,
-              password: adminPassword,
-            );
-            
-            // Afficher le message de succès approprié
-            String roleMessage = '';
-            switch (_selectedRole) {
-              case 'Fournisseur':
-                roleMessage = 'Compte fournisseur créé avec succès';
-                break;
-              case 'Maintenancier':
-                roleMessage = 'Compte maintenancier créé avec succès';
-                break;
-              case 'Utilisateur':
-                roleMessage = 'Compte utilisateur créé avec succès';
-                break;
-              case 'Admin':
-                roleMessage = 'Compte administrateur créé avec succès';
-                break;
-            }
-            
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(roleMessage),
-                backgroundColor: Colors.green,
-                duration: const Duration(seconds: 3),
-              ),
-            );
-          } catch (e) {
-            // Si la reconnexion échoue, afficher un message
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Veuillez vous reconnecter en tant qu\'administrateur'),
-                backgroundColor: Colors.red,
-                duration: Duration(seconds: 5),
-              ),
-            );
-            Navigator.of(context).pop(); // Retourner à l'écran de connexion
-          }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Compte créé avec succès. Veuillez vous reconnecter.'),
-              backgroundColor: Colors.blue,
-              duration: Duration(seconds: 5),
-            ),
-          );
-          Navigator.of(context).pop(); // Retourner à l'écran de connexion
-        }
 
         setState(() {
           _isLoading = false;

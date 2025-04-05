@@ -551,29 +551,11 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        // Vérifier si l'utilisateur est un administrateur
-        final user = FirebaseAuth.instance.currentUser;
-        if (user != null) {
-          final userDoc = await FirebaseFirestore.instance
-              .collection(AppConstants.usersCollection)
-              .doc(user.uid)
-              .get();
-          
-          if (userDoc.exists && userDoc.data()?['role'] == 'Admin') {
-            Navigator.pop(context);
-            return false;
-          }
-        }
-        return false; // Empêcher la fermeture de l'application
-      },
-      child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 240, 232, 255),
-        appBar: AppBar(
-          title: const Text("Compléter votre profil"),
-          automaticallyImplyLeading: false,
-        ),
+    return Scaffold(
+          backgroundColor: const Color.fromARGB(255, 240, 232, 255),
+      appBar: AppBar(
+        title: const Text("Compléter votre profil"),
+      ),
       body: GestureDetector(
         onPanUpdate: (details) {
           if (details.delta.dx > 0) {
@@ -753,6 +735,6 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
           ),
         ),
       ),
-    ),);
+    );
   }
 }

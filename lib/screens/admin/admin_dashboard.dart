@@ -47,9 +47,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final user = authService.currentUser;
 
     if (user == null) {
-      // Redirigez vers la page de connexion si l'utilisateur n'est pas connecté
       Navigator.pushReplacementNamed(context, AppConstants.routeLogin);
-      return const SizedBox.shrink(); // Ne rien afficher
+      return const SizedBox.shrink();
     }
 
     return Scaffold(
@@ -57,17 +56,75 @@ class _AdminDashboardState extends State<AdminDashboard> {
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children: const [
-            DrawerHeader(
+          children: [
+            const DrawerHeader(
               decoration: BoxDecoration(
                 color: Color.fromARGB(255, 240, 232, 255),
               ),
-              child: Text('Menu'),
+              child: Column(
+                children: [
+                  SizedBox(height: 10),
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: AssetImage('assets/icons/image.svg'),
+                  ),
+                  SizedBox(height: 10),
+                  Text('Gérer vos appareils avec aise',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 19),),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.computer),
+              title: const Text('Équipements'),
+              onTap: () {
+                _onItemTapped(0);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.people),
+              title: const Text('Employés'),
+              onTap: () {
+                _onItemTapped(1);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.assignment),
+              title: const Text('Tâches'),
+              onTap: () {
+                _onItemTapped(2);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.history),
+              title: const Text('Activités'),
+              onTap: () {
+                _onItemTapped(3);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.report),
+              title: const Text('Rapports'),
+              onTap: () {
+                _onItemTapped(4);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.checklist),
+              title: const Text('Fournisseurs'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, AppConstants.routeFournisseurs);
+              },
             ),
           ],
         ),
       ),
-          backgroundColor: const Color.fromARGB(255, 240, 232, 255),
+      backgroundColor: const Color.fromARGB(255, 240, 232, 255),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(

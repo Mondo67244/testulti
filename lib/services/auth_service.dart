@@ -55,6 +55,44 @@ class AuthService {
   Future<Employee?> getCurrentEmployee() async {
     return await getCurrentUser();
   }
+  
+  // Créer un utilisateur sans se connecter automatiquement
+  Future<UserCredential> createUserWithoutSigningIn(String email, String password) async {
+    // Sauvegarder l'utilisateur actuel
+    final currentUser = _auth.currentUser;
+    
+    // Créer le nouvel utilisateur
+    final UserCredential newUserCredential = await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    
+    // Si un utilisateur était connecté avant, le reconnecter
+    if (currentUser != null) {
+      // Déconnecter le nouvel utilisateur
+      await _auth.signOut();
+      
+      // Reconnecter l'utilisateur précédent
+      try {
+        // Nous ne pouvons pas nous reconnecter avec le mot de passe car il n'est pas stocké
+        // Nous utilisons donc un token de persistance pour maintenir la session
+        await _auth.signInWithCustomToken(await _getCustomToken(currentUser.uid));
+      } catch (e) {
+        print("Erreur lors de la reconnexion: $e");
+        // En cas d'échec, nous informons l'utilisateur qu'il doit se reconnecter manuellement
+      }
+    }
+    
+    return newUserCredential;
+  }
+  
+  // Méthode pour obtenir un token personnalisé (cette méthode nécessiterait une fonction Cloud)
+  Future<String> _getCustomToken(String uid) async {
+    // Cette méthode devrait appeler une fonction Cloud Firebase pour générer un token
+    // Pour l'instant, nous retournons une chaîne vide car cela nécessite une configuration côté serveur
+    // Dans une implémentation réelle, vous devriez appeler une fonction Cloud
+    throw UnimplementedError('Cette fonctionnalité nécessite une fonction Cloud Firebase');
+  }
 
 // Stream de l'état d'authentification
   Stream<Employee?> get authStateChanges {

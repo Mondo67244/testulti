@@ -83,28 +83,71 @@ class _FournisseurDashboardState extends State<FournisseurDashboard> {
           final name = userData['name'] ?? '';
 
       return Scaffold(
-                    backgroundColor: const Color.fromARGB(255, 240, 232, 255),
+      backgroundColor: const Color.fromARGB(255, 240, 232, 255),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children: const [
-            DrawerHeader(
+          children: [
+            const DrawerHeader(
               decoration: BoxDecoration(
                 color: Color.fromARGB(255, 240, 232, 255),
               ),
-              child: Text('Menu'),
+              child: Column(
+                children: [
+                  SizedBox(height: 10),
+                  CircleAvatar(
+                    radius: 30,
+                  ),
+                  SizedBox(height: 10),
+                  Text('Gérer les commandes',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 19),),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.chrome_reader_mode_outlined),
+              title: const Text('Commandes Récentes'),
+              onTap: () {
+                _onItemTapped(0);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.receipt_outlined),
+              title: const Text('Commandes Livrées'),
+              onTap: () {
+                _onItemTapped(1);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.store_mall_directory_outlined),
+              title: const Text('Equipement en stock'),
+              onTap: () {
+                _onItemTapped(2);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.add_business_outlined),
+              title: const Text('Ajouter des équipements'),
+              onTap: () {
+                _onItemTapped(3);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_outline_outlined),
+              title: const Text('Mon profil'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, AppConstants.routeAllUserInfos);
+              },
             ),
           ],
         ),
       ),
       appBar: AppBar(
         title: Text('Bienvenue $name'),
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Color.fromARGB(221, 255, 255, 255)),
-          onPressed: () {
-            Scaffold.of(context).openDrawer();
-          },
-        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),

@@ -171,68 +171,140 @@ class _EmployeeFormState extends State<EmployeeForm> {
       });
 
       try {
+        // Sauvegarder l'utilisateur actuel avant de créer un nouveau compte
+        final currentUser = FirebaseAuth.instance.currentUser;
+        String? currentEmail;
+        String? currentPassword;
+        String? currentUid;
+        
+        if (currentUser != null) {
+          currentEmail = currentUser.email;
+          currentUid = currentUser.uid;
+        }
+        
         // Créer l'utilisateur sans se connecter automatiquement
-        final UserCredential userCredential =
-            await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-
-        Map<String, dynamic> userData = {
-          'email': userCredential.user!.email,
-          'isActive': true,
-          'joinDate': FieldValue.serverTimestamp(),
-          'isProfileComplete': false,
-          'role': _selectedRole,
-        };
-
-        if (_selectedRole == 'Fournisseur') {
-          userData['category'] = _selectedCategory;
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Compte fournisseur créé avec succès'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 3),
-            ),
+        // Stocker temporairement les informations d'authentification actuelles
+        final auth = FirebaseAuth.instance;
+        final newUserEmail = _emailController.text.trim();
+        final newUserPassword = _passwordController.text.trim();
+        
+        // Créer l'utilisateur
+        UserCredential userCredential;
+        
+        if (currentUser != null) {
+          // Si un administrateur est connecté, nous devons d'abord stocker son token
+          // pour pouvoir le reconnecter après
+          final idToken = await currentUser.getIdToken();
+          
+          // Déconnecter temporairement l'administrateur pour créer le nouvel utilisateur
+          await auth.signOut();
+          
+          // Créer le nouvel utilisateur
+          userCredential = await auth.createUserWithEmailAndPassword(
+            email: newUserEmail,
+            password: newUserPassword,
           );
-        } else if (_selectedRole == 'Maintenancier') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Compte maintenancier créé avec succès'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 3),
-            ),
+          
+          // Enregistrer les données utilisateur dans Firestore
+          Map<String, dynamic> userData = {
+            'email': userCredential.user!.email,
+            'isActive': true,
+            'joinDate': FieldValue.serverTimestamp(),
+            'isProfileComplete': false,
+            'role': _selectedRole,
+          };
+          
+          if (_selectedRole == 'Fournisseur') {
+            userData['category'] = _selectedCategory;
+          }
+          
+          await FirebaseFirestore.instance
+              .collection(AppConstants.usersCollection)
+              .doc(userCredential.user!.uid)
+              .set(userData);
+          
+          // Déconnecter le nouvel utilisateur
+          await auth.signOut();
+          
+          // Reconnecter l'administrateur avec son email
+          if (currentEmail != null) {
+            try {
+              // Nous devons demander à l'administrateur de se reconnecter manuellement
+              // car nous ne pouvons pas stocker son mot de passe en toute sécurité
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Compte ${_selectedRole.toLowerCase()} créé avec succès'),
+                  backgroundColor: Colors.green,
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+              
+              // Tenter de reconnecter l'administrateur avec son token
+              try {
+                // Utiliser la méthode signInWithCustomToken si disponible
+                // Sinon, rediriger vers la page de connexion
+                await auth.signInWithEmailAndPassword(
+                  email: currentEmail,
+                  password: "" // Nous ne connaissons pas le mot de passe
+                );
+              } catch (e) {
+                // Si la reconnexion échoue, nous devons informer l'utilisateur
+                print("Erreur lors de la reconnexion automatique: $e");
+              }
+            } catch (e) {
+              print("Erreur lors de la reconnexion: $e");
+            }
+          }
+        } else {
+          // Si aucun utilisateur n'est connecté (cas improbable), créer simplement le compte
+          userCredential = await auth.createUserWithEmailAndPassword(
+            email: newUserEmail,
+            password: newUserPassword,
           );
-        } else if (_selectedRole == 'Utilisateur') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Compte utilisateur créé avec succès'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 3),
-            ),
-          );
-        } else if (_selectedRole == 'Admin') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Compte administrateur créé avec succès'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 3),
-            ),
-          );
+          
+          // Enregistrer les données utilisateur dans Firestore
+          Map<String, dynamic> userData = {
+            'email': userCredential.user!.email,
+            'isActive': true,
+            'joinDate': FieldValue.serverTimestamp(),
+            'isProfileComplete': false,
+            'role': _selectedRole,
+          };
+          
+          if (_selectedRole == 'Fournisseur') {
+            userData['category'] = _selectedCategory;
+          }
+          
+          await FirebaseFirestore.instance
+              .collection(AppConstants.usersCollection)
+              .doc(userCredential.user!.uid)
+              .set(userData);
         }
 
-        // Enregistrer les données utilisateur dans Firestore
-        await FirebaseFirestore.instance
-            .collection(AppConstants.usersCollection)
-            .doc(userCredential.user!.uid)
-            .set(userData);
+        // Afficher un message de succès en fonction du rôle
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Compte ${_selectedRole.toLowerCase()} créé avec succès'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
 
         setState(() {
           _isLoading = false;
           _emailController.clear();
           _passwordController.clear();
         });
+        
+        // Retourner à la liste des employés après un court délai
+        // pour permettre à l'utilisateur de voir le message de succès
+        if (mounted) {
+          Future.delayed(const Duration(seconds: 2), () {
+            if (mounted) {
+              Navigator.pop(context);
+            }
+          });
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

@@ -35,7 +35,10 @@ class ProfilUtilisateur extends StatelessWidget {
         return Scaffold(
           backgroundColor: const Color.fromARGB(255, 240, 232, 255),
           appBar: AppBar(
-            automaticallyImplyLeading: false,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
             title: Text('Informations sur vous ($name)'),
           ),
           

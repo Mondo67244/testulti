@@ -66,10 +66,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   SizedBox(height: 10),
                   CircleAvatar(
                     radius: 30,
-                    backgroundImage: AssetImage('assets/icons/image.svg'),
                   ),
                   SizedBox(height: 10),
-                  Text('Gérer vos appareils avec aise',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 19),),
+                  Text('Gérer vos appareils avec aise',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 19)),
                 ],
               ),
             ),
@@ -119,6 +118,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, AppConstants.routeFournisseurs);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_outline_outlined),
+              title: const Text('Mon profil'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, AppConstants.routeAllUserInfos);
               },
             ),
           ],

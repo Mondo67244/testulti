@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gestion_parc_informatique/constants/app_constants.dart';
 import 'package:gestion_parc_informatique/screens/Utilisateur/locations_screen.dart';
-import 'package:gestion_parc_informatique/screens/common/all_userinfo_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
@@ -46,7 +46,6 @@ class _UtilisateurDashboardState extends State<UtilisateurDashboard> {
     _pages = [
       MesRapports(userId: widget.userId),
       const LocationsScreen(),
-      const ProfilUtilisateur(),
     ];
   }
 
@@ -113,13 +112,44 @@ class _UtilisateurDashboardState extends State<UtilisateurDashboard> {
             drawer: Drawer(
               child: ListView(
                 padding: EdgeInsets.zero,
-                children: const [
-                  DrawerHeader(
+                children: [
+                  const DrawerHeader(
                     decoration: BoxDecoration(
                       color: Color.fromARGB(255, 240, 232, 255),
                     ),
-                    child: Text('Menu'),
+                    child: Column(
+                      children: [
+                      SizedBox(height: 10),
+                      CircleAvatar(radius: 30),
+                      SizedBox(height: 10),
+                      Text('Gérer vos signalements',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 19)),
+                      ],
+                    ),
                   ),
+                  ListTile(
+              leading: const Icon(Icons.assignment),
+              title: const Text('Mes rapports faits'),
+              onTap: () {
+                _onItemTapped(0);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.location_on),
+              title: const Text('Mon emplacement actuel'),
+              onTap: () {
+                _onItemTapped(1);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Mon Profil personnel'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, AppConstants.routeAllUserInfos);
+              },
+            ),
                 ],
               ),
             ),
@@ -148,10 +178,6 @@ class _UtilisateurDashboardState extends State<UtilisateurDashboard> {
                 BottomNavigationBarItem(
                   icon: Icon(Icons.list),
                   label: 'Ma zone',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
-                  label: 'Mon Profil',
                 ),
               ],
               currentIndex: _selectedIndex,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_parc_informatique/constants/app_constants.dart';
 import 'equipment_list.dart';
 import 'task_list.dart';
 import 'package:provider/provider.dart';
@@ -67,18 +68,48 @@ Future<void> _confirmLogout(BuildContext context) async {
         
         return Scaffold(
           key: _scaffoldKey,
-          
           backgroundColor: const Color.fromARGB(255, 240, 232, 255),
           drawer: Drawer(
             child: ListView(
               padding: EdgeInsets.zero,
-              children: const [
-                DrawerHeader(
+              children: [
+                const DrawerHeader(
                   decoration: BoxDecoration(
                     color: Color.fromARGB(255, 240, 232, 255),
                   ),
-                  child: Text('Menu'),
+                  child: Column(
+                    children: [
+                    SizedBox(height: 10),
+                    CircleAvatar(
+                    radius: 30,
+                  ),
+                  SizedBox(height: 10),
+                      Text('Gérer les équipements',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 19)),
+                    ],
+                  ),
                 ),
+                ListTile(
+              leading: const Icon(Icons.build),
+              title: const Text('Mes équipements'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.task),
+              title: const Text('Mes taches'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+                ListTile(
+              leading: const Icon(Icons.person_outline_outlined),
+              title: const Text('Mon profil'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, AppConstants.routeAllUserInfos);
+              },
+            ),
               ],
             ),
           ),

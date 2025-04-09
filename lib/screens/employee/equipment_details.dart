@@ -22,10 +22,13 @@ class _EquipmentDetailsState extends State<EquipmentDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-          backgroundColor: const Color.fromARGB(255, 240, 232, 255),
-      
+      backgroundColor: const Color.fromARGB(255, 240, 232, 255),
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: Text(
           widget.equipment.name,
           style: const TextStyle(
@@ -42,6 +45,19 @@ class _EquipmentDetailsState extends State<EquipmentDetails> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ReportIssuePage(equipment: widget.equipment),
+            ),
+          );
+        },
+        icon: const Icon(Icons.report_problem),
+        label: const Text('Signaler un problème'),
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -49,67 +65,162 @@ class _EquipmentDetailsState extends State<EquipmentDetails> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Informations de l'équipement
-                  _buildInfoSection(
-                    'Informations générales',
-                    [
-                      _buildInfoRow('Nom', widget.equipment.name),
-                      _buildInfoRow(
-                          'Numéro de série', widget.equipment.serialNumber),
-                      _buildInfoRow('Catégorie', widget.equipment.category),
-                      _buildInfoRow('Localisation', widget.equipment.location),
-                      _buildInfoRow('État', widget.equipment.state),
-                      _buildInfoRow('Statut', widget.equipment.status),
-                      _buildInfoRow('Fabricant', widget.equipment.manufacturer),
-                      _buildInfoRow('Modèle', widget.equipment.model),
-                      _buildInfoRow('Fournisseur', widget.equipment.supplier),
-                      _buildInfoRow('Département responsable',
-                          widget.equipment.responsibleDepartment),
-                      _buildInfoRow('Date d\'achat',
-                          _formatDate(widget.equipment.purchaseDate)),
-                      _buildInfoRow('Date d\'installation',
-                          _formatDate(widget.equipment.installationDate)),
-                      if (widget.equipment.lastMaintenanceDate != null)
-                        _buildInfoRow('Dernière maintenance',
-                            _formatDate(widget.equipment.lastMaintenanceDate!)),
-                      if (widget.equipment.nextMaintenanceDate != null)
-                        _buildInfoRow('Prochaine maintenance',
-                            _formatDate(widget.equipment.nextMaintenanceDate!)),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Description
-                  _buildInfoSection(
-                    'Caractéristiques de l\'équipement',
-                    [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Text('Quelques caractéristiques pour l\'équipement'
-                            ' ${widget.equipment.description} nous avons :'
-                          ,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black87,
+                  // État de l'équipement
+                  Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                widget.equipment.state == 'Bon état' 
+                                  ? Icons.check_circle 
+                                  : Icons.warning,
+                                color: widget.equipment.state == 'Bon état'
+                                  ? Colors.green
+                                  : Colors.orange,
+                                size: 24,
+                              ),
+                              const SizedBox(width: 8),
+                              Row(
+                                children: [
+                                  const Text(
+                                    'État: ',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    widget.equipment.state,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: widget.equipment.state == 'Bon état'
+                                       ? Colors.green
+                                        : Colors.red,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ],
                           ),
+                        
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  // Informations de base
+                  Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(context).primaryColor.withOpacity(0.1),
+                          width: 1,
                         ),
                       ),
-                    ],
+                      child: const Text(
+                        'Informations de base',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF4E15C0),
+                        ),
+                      ),
+                    ),
+                          const SizedBox(height: 16),
+                          _buildInfoRow('Numéro de série : ', widget.equipment.serialNumber),
+                          _buildInfoRow('Catégorie : ', widget.equipment.category),
+                          _buildInfoRow('Localisation : ', widget.equipment.location),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 24),
-                  // Add the button to navigate to the report issue page
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ReportIssuePage(equipment: widget.equipment),
-                          ),
-                        );
-                      },
-                      child: const Text('Faire un rapport'),
+
+                  // Détails techniques
+                  Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                         Container(
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(context).primaryColor.withOpacity(0.1),
+                          width: 1,
+                        ),
+                      ),
+                      child: const Text(
+                        'Détails techniques',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF4E15C0),
+                        ),
+                      ),
+                    ),
+                          const SizedBox(height: 16),
+                          _buildInfoRow('Fabricant : ', widget.equipment.manufacturer),
+                          _buildInfoRow('Modèle :', widget.equipment.model),
+                          _buildInfoRow('Fournisseur : ', widget.equipment.supplier),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Informations de maintenance
+                  Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(context).primaryColor.withOpacity(0.1),
+                          width: 1,
+                        ),
+                      ),
+                      child: const Text(
+                        'Date d\'achat et d\'installation',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF4E15C0),
+                        ),
+                      ),
+                    ),
+                          const SizedBox(height: 16),
+                          _buildInfoRow('Date d\'achat : ', _formatDate(widget.equipment.purchaseDate)),
+                          _buildInfoRow('Date d\'installation : ', _formatDate(widget.equipment.installationDate)),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -144,47 +255,41 @@ class _EquipmentDetailsState extends State<EquipmentDetails> {
   Widget _buildInfoRow(String label, String value) {
     final IconData icon;
     switch (label) {
-      case 'Nom':
+      case 'Nom : ':
         icon = Icons.badge;
         break;
-      case 'Numéro de série':
+      case 'Numéro de série : ':
         icon = Icons.numbers;
         break;
-      case 'Catégorie':
+      case 'Catégorie : ':
         icon = Icons.category;
         break;
-      case 'Localisation':
+      case 'Localisation : ':
         icon = Icons.location_on;
         break;
-      case 'État':
+      case 'État : ':
         icon = Icons.assessment;
         break;
-      case 'Statut':
+      case 'Statut : ':
         icon = Icons.info;
         break;
-      case 'Fabricant':
+      case 'Fabricant : ':
         icon = Icons.factory;
         break;
-      case 'Modèle':
+      case 'Modèle : ':
         icon = Icons.model_training;
         break;
-      case 'Fournisseur':
+      case 'Fournisseur : ':
         icon = Icons.local_shipping;
         break;
-      case 'Département responsable':
+      case 'Département responsable : ':
         icon = Icons.business;
         break;
-      case 'Date d\'achat':
+      case 'Date d\'achat : ':
         icon = Icons.shopping_cart;
         break;
-      case 'Date d\'installation':
+      case 'Date d\'installation : ':
         icon = Icons.install_desktop;
-        break;
-      case 'Dernière maintenance':
-        icon = Icons.build;
-        break;
-      case 'Prochaine maintenance':
-        icon = Icons.schedule;
         break;
       default:
         icon = Icons.info;
@@ -201,10 +306,10 @@ class _EquipmentDetailsState extends State<EquipmentDetails> {
             width: 120,
             child: Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -223,7 +328,7 @@ class _EquipmentDetailsState extends State<EquipmentDetails> {
   }
 
   String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
+    return ' ${date.day}/${date.month}/${date.year}';
   }
 
   Future<void> _confirmLogout(BuildContext context) async {
@@ -237,7 +342,7 @@ class _EquipmentDetailsState extends State<EquipmentDetails> {
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Non'),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             child: const Text('Oui'),
           ),

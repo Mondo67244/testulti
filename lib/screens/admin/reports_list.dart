@@ -83,14 +83,10 @@ class _ReportsListScreenState extends State<ReportsListScreen>
         final documents = snapshot.data?.docs ?? [];
 
         if (documents.isEmpty) {
-          // print('Aucun rapport trouvé pour le rôle: $role');
           return Center(
               child: Text('Aucun rapport de "$role" disponible.')); // More specific message
         }
 
-        // print('${documents.length} rapports trouvés pour le rôle: $role');
-
-        // AJOUT: Utilisation de LayoutBuilder pour choisir le layout
         return LayoutBuilder(
           builder: (context, constraints) {
             // Si écran étroit -> ListView
@@ -107,12 +103,11 @@ class _ReportsListScreenState extends State<ReportsListScreen>
             // Si écran large -> GridView
             else {
               return GridView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 450,
-                  childAspectRatio: 1.6,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+                  maxCrossAxisExtent: 350,
+                  childAspectRatio: 1.4,
+                  
                 ),
                 itemCount: documents.length,
                 itemBuilder: (context, index) {
@@ -127,7 +122,6 @@ class _ReportsListScreenState extends State<ReportsListScreen>
     );
   }
 
-  // Fonction générique pour choisir quelle carte construire
   Widget _buildCardForItem(String role, Map<String, dynamic> data) {
      // Vérification des données et valeurs par défaut (placées ici pour être accessibles par toutes les card builders)
     String equipmentName = data['equipmentName'] ?? 'Équipement inconnu';
@@ -152,7 +146,7 @@ class _ReportsListScreenState extends State<ReportsListScreen>
     // Appel du builder spécifique basé sur le rôle
     switch (role) {
       case 'Maintenancier':
-        return _buildMaintenancierReportCard(equipmentName, reportedBy, location, equipmentId, issueType, actionType, type, description, dateFormatted);
+        return _buildMaintenancierReportCard(equipmentName, reportedBy, location, equipmentId, issueType, actionType, description, dateFormatted);
       case 'Utilisateur':
         return _buildUtilisateurReportCard(equipmentName, reportedBy, location, equipmentId, description, dateFormatted);
       case 'Fournisseur':
@@ -164,7 +158,7 @@ class _ReportsListScreenState extends State<ReportsListScreen>
 
   // --- Builders Spécifiques pour chaque type de carte ---
 
-  Widget _buildMaintenancierReportCard(String equipmentName, String reportedBy, String location, String equipmentId, String issueType, String actionType, String type, String description, String dateFormatted) {
+  Widget _buildMaintenancierReportCard(String equipmentName, String reportedBy, String location, String equipmentId, String issueType, String actionType, String description, String dateFormatted) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -172,7 +166,7 @@ class _ReportsListScreenState extends State<ReportsListScreen>
         constraints: const BoxConstraints(maxHeight: 300),
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(10.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,7 +188,8 @@ class _ReportsListScreenState extends State<ReportsListScreen>
                   children: [
                     Icon(Icons.featured_play_list_outlined, size: 16, color: Colors.grey.shade700),
                     const SizedBox(width: 6),
-                    const Text('Description:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  
+                    const Text('Description:',maxLines: 9, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -226,7 +221,7 @@ class _ReportsListScreenState extends State<ReportsListScreen>
            constraints: const BoxConstraints(maxHeight: 300),
            child: SingleChildScrollView(
              child: Padding(
-               padding: const EdgeInsets.all(12.0),
+               padding: const EdgeInsets.all(10.0),
                child: Column(
                  mainAxisSize: MainAxisSize.min,
                  crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,14 +234,14 @@ class _ReportsListScreenState extends State<ReportsListScreen>
                    ),
                    const SizedBox(height: 8),
                    _buildDetailRow(Icons.person_outline, 'Créé par', reportedBy, valueStyle: const TextStyle(color: Color.fromARGB(189, 104, 58, 183), fontWeight: FontWeight.bold)),
-                   _buildDetailRow(Icons.qr_code_rounded, 'ID Équipement', equipmentId, valueStyle: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                   _buildDetailRow(Icons.qr_code_rounded, 'ID Équipement', equipmentId, valueStyle: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12)),
                    const SizedBox(height: 5),
                    Row(
                      crossAxisAlignment: CrossAxisAlignment.start,
                      children: [
                        Icon(Icons.featured_play_list_outlined, size: 16, color: Colors.grey.shade700),
                        const SizedBox(width: 6),
-                       const Text('Description:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                       const Text('Description:',maxLines: 9, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                      ],
                    ),
                    const SizedBox(height: 4),
@@ -259,7 +254,6 @@ class _ReportsListScreenState extends State<ReportsListScreen>
                        overflow: TextOverflow.ellipsis,
                      ),
                    ),
-                   const SizedBox(height: 10),
                    const Divider(height: 15),
                    _buildDetailRow(Icons.calendar_month_outlined, 'Date d\'envoi', dateFormatted),
                    _buildDetailRow(Icons.location_on_outlined, 'Emplacement', location),
@@ -279,7 +273,7 @@ class _ReportsListScreenState extends State<ReportsListScreen>
            constraints: const BoxConstraints(maxHeight: 250),
            child: SingleChildScrollView(
              child: Padding(
-               padding: const EdgeInsets.all(12.0),
+               padding: const EdgeInsets.all(10.0),
                child: Column(
                  mainAxisSize: MainAxisSize.min,
                  crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,7 +292,7 @@ class _ReportsListScreenState extends State<ReportsListScreen>
                      children: [
                        Icon(Icons.featured_play_list_outlined, size: 16, color: Colors.grey.shade700),
                        const SizedBox(width: 6),
-                       const Text('Description:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                       const Text('Description:',maxLines: 9, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                      ],
                    ),
                    const SizedBox(height: 4),
@@ -311,7 +305,6 @@ class _ReportsListScreenState extends State<ReportsListScreen>
                        overflow: TextOverflow.ellipsis,
                      ),
                    ),
-                   const SizedBox(height: 16),
                    const Divider(height: 15),
                    _buildDetailRow(Icons.calendar_month_outlined, 'Date', dateFormatted),
                  ],

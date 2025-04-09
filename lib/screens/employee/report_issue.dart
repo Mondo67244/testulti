@@ -17,8 +17,14 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
   final _descriptionController = TextEditingController();
   String? _selectedIssueType;
   String? _selectedActionType;
-  String? _selectedLocation = AppConstants.location.first;
+  late String _selectedLocation;
   String? _selectedEtat = AppConstants.etat.first;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedLocation = widget.equipment.location;
+  }
 
   @override
   void dispose() {
@@ -26,18 +32,6 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
     super.dispose();
   }
 
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'en attente':
-        return Colors.orange;
-      case 'en cours':
-        return Colors.blue;
-      case 'terminé':
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,11 +61,14 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
             // Dropdown for type of issue
             DropdownButtonFormField<String>(
               decoration: const InputDecoration(
-                icon: Icon(Icons.report_problem),
                 labelText: 'Type de Panne',
                 border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.report_problem),
               ),
-              items: <String>['Matérielle', 'Logicielle'].map((String value) {
+              items: <String>[
+                'Matérielle',
+                'Logicielle',
+              ].map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(value),
@@ -89,12 +86,17 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
             // Dropdown for action type
             DropdownButtonFormField<String>(
               decoration: const InputDecoration(
-                icon: Icon(Icons.pan_tool),
-                labelText: 'Type d’Action',
+                labelText: 'Type d\'Action',
                 border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.pan_tool),
               ),
-              items: <String>['Maintenance', 'Remplacement', 'Retrait']
-                  .map((String value) {
+              items: <String>[
+                'Maintenance logicielle',
+                'Maintenance matérielle',
+                'Retrait définitif',
+                'Maintenance logicielle',
+                'Inspection générale',
+              ].map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(value),
@@ -109,53 +111,17 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
             ),
             const SizedBox(height: 16),
 
-            // Dropdown pour la localisation
-            DropdownButtonFormField<String>(
-              value: _selectedLocation,
+            // Champ d'emplacement non modifiable
+            TextFormField(
+              enabled: false,
+              initialValue: _selectedLocation,
               decoration: const InputDecoration(
-                  labelText: 'Emplacement*',
-                  border: OutlineInputBorder(),
-                  icon: Icon(Icons.add_business_outlined)),
-              items: AppConstants.location.map((location) {
-                return DropdownMenuItem<String>(
-                  value: location,
-                  child: Text(location),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedLocation = value;
-                });
-              },
+                labelText: 'Emplacement actuel de l\'équipement*',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.location_on),
+              ), 
             ),
             const SizedBox(height: 16),
-            
-            //État équipement
-            DropdownButtonFormField<String>(
-              value: _selectedEtat,
-              decoration: const InputDecoration(
-                  labelText: 'État d\'avancement du rapport*',
-                  border: OutlineInputBorder(),
-                  icon: Icon(Icons.shield_sharp)),
-              items: AppConstants.etat.map((etat) {
-                return DropdownMenuItem<String>(
-                  value: etat,
-                  child: Text(etat),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedEtat = value;
-                });
-              },
-            ),
-            Text('📌 Statut : $_selectedEtat',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: _getStatusColor(_selectedEtat ?? '')),
-                      ),
-            const SizedBox(height: 16),
-
             // Add a description field
             TextFormField(
               controller: _descriptionController,

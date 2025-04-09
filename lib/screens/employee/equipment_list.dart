@@ -259,7 +259,7 @@ class _EquipmentListState extends State<EquipmentList>
                       padding: EdgeInsets.all(contentPadding),
                       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: 450,
-                        childAspectRatio: 1.8,
+                        mainAxisExtent: 180,
                         crossAxisSpacing: 16,
                         mainAxisSpacing: 16,
                       ),

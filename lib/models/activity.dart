@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 //cette page fournit les activités effectuées par les employésqui devront être enregistrées dans la page des activités recemment effectuées
 
@@ -46,10 +48,10 @@ extension ActivityTypeExtension on ActivityType {
       return 'employee';
     } else if (toString().startsWith('ActivityType.task')) {
       return 'task';
-    } else if (toString().startsWith('ActivityType.report')) {
-      return 'report';
-    } else {
+    } else if (toString().startsWith('ActivityType.system')) {
       return 'system';
+    } else {
+      return 'report';
     }
   }
 
@@ -101,7 +103,7 @@ extension ActivityTypeExtension on ActivityType {
 
       // Système
       case ActivityType.systemAction:
-        return 'Action système';
+        return 'Rapports d\'utilisateur';
     }
   }
 }

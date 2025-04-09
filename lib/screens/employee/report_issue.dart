@@ -230,7 +230,7 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
                     await FirebaseFirestore.instance.collection('activities').add({
                       'activityType': 'reportCreated',
                       'category': 'report',
-                      'description': 'Nouveau rapport de maintenance pour ${widget.equipment.name}',
+                      'description': 'Nouveau rapport de maintenance pour l\'équipement " ${widget.equipment.name} "',
                       'details': {
                         'description': _descriptionController.text.trim(),
                         'equipmentId': widget.equipment.id,

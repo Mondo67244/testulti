@@ -18,6 +18,10 @@ class _TaskListState extends State<TaskList>
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
+  // Constantes pour la mise en page responsive
+  final double wideLayoutBreakpoint = 700.0;
+  final double maxContentWidth = 800.0;
+
   @override
   void initState() {
     super.initState();
@@ -45,13 +49,31 @@ class _TaskListState extends State<TaskList>
         Provider.of<MaintenanceTaskService>(context, listen: false);
 
     return Scaffold(
-          backgroundColor: const Color.fromARGB(255, 240, 232, 255),
-      body: Column(
+      backgroundColor: const Color.fromARGB(255, 240, 232, 255),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final bool isWide = constraints.maxWidth >= wideLayoutBreakpoint;
+            final double horizontalPadding = isWide ? (constraints.maxWidth - maxContentWidth) / 2 : 12.0;
+            
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+              child: Column(
         children: [
-          // Barre de recherche
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-            child: TextField(
+          // MODIFICATION: Utiliser LayoutBuilder pour le padding/contrainte du header
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final bool isWide = constraints.maxWidth >= wideLayoutBreakpoint;
+              final double horizontalPadding = isWide ? (constraints.maxWidth - maxContentWidth) / 2 : 12.0;
+
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                child: Column(
+                  children: [
+                    // Barre de recherche
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 12, 0, 8),
+                      child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Rechercher une tâche...',
@@ -86,20 +108,20 @@ class _TaskListState extends State<TaskList>
             ),
           ),
 
-          // Onglets de filtrage par statut
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withOpacity(0.05),
-              border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(context).primaryColor.withOpacity(0.2),
-                  width: 1,
-                ),
-              ),
-            ),
-            child: TabBar(
+                    // Onglets de filtrage par statut
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.05),
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Theme.of(context).primaryColor.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      child: TabBar(
               controller: _tabController,
-              isScrollable: false,
+              isScrollable: constraints.maxWidth < 380,
               labelColor: Theme.of(context).primaryColor,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Theme.of(context).primaryColor,
@@ -116,6 +138,12 @@ class _TaskListState extends State<TaskList>
                     .toList(),
               ],
             ),
+          ),
+
+                  ],
+                ),
+              );
+            },
           ),
 
           // Liste des tâches
@@ -196,9 +224,14 @@ class _TaskListState extends State<TaskList>
                   );
                 }
 
-                return ListView.builder(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                // MODIFICATION: Utiliser LayoutBuilder pour centrer et contraindre la ListView
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final bool isWide = constraints.maxWidth >= wideLayoutBreakpoint;
+                    final double horizontalPadding = isWide ? (constraints.maxWidth - maxContentWidth) / 2 : 12.0;
+
+                    return ListView.builder(
+                      padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
                   itemCount: filteredTasks.length,
                   itemBuilder: (context, index) {
                     final task = filteredTasks[index];
@@ -206,9 +239,13 @@ class _TaskListState extends State<TaskList>
                   },
                 );
               },
-            ),
-          ),
-        ],
+            );
+  },),
+      )],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

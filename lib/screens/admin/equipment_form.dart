@@ -155,14 +155,17 @@ class _EquipmentFormState extends State<EquipmentForm> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
+          : SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                     // Informations générales
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -548,7 +551,7 @@ class _EquipmentFormState extends State<EquipmentForm> {
             ),
           ),
         ),
-      );
+      ),));
   }
 
   Future<void> _selectDate(BuildContext context, bool isPurchaseDate) async {

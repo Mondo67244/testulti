@@ -197,19 +197,39 @@ class _EmployeeListState extends State<EmployeeList> {
                   );
                 }
 
-                // Afficher deux employés par ligne
-                return GridView.builder(
-                  padding: const EdgeInsets.all(12),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1.0,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                  ),
-                  itemCount: filteredEmployees.length,
-                  itemBuilder: (context, index) {
-                    final employee = filteredEmployees[index];
-                    return _buildEmployeeCard(employee);
+                // Utiliser LayoutBuilder pour une mise en page responsive
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (constraints.maxWidth < 600) {
+                      // Vue en liste pour les petits écrans
+                      return ListView.builder(
+                        padding: const EdgeInsets.all(12),
+                        itemCount: filteredEmployees.length,
+                        itemBuilder: (context, index) {
+                          final employee = filteredEmployees[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: _buildEmployeeCard(employee),
+                          );
+                        },
+                      );
+                    } else {
+                      // Vue en grille pour les grands écrans
+                      return GridView.builder(
+                        padding: const EdgeInsets.all(12),
+                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 300,
+                          childAspectRatio: 1.2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
+                        itemCount: filteredEmployees.length,
+                        itemBuilder: (context, index) {
+                          final employee = filteredEmployees[index];
+                          return _buildEmployeeCard(employee);
+                        },
+                      );
+                    }
                   },
                 );
               },

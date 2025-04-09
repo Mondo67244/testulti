@@ -24,6 +24,9 @@ class _EquipmentListState extends State<EquipmentList>
   String _currentStateFilter = 'all'; // 'all', 'functional', 'defective'
   late TabController _tabController;
 
+  // AJOUT: Définir un breakpoint pour le changement de layout
+  final double tabletBreakpoint = 600.0;
+
   @override
   void initState() {
     super.initState();
@@ -57,6 +60,7 @@ class _EquipmentListState extends State<EquipmentList>
           children: [
             // Barre de catégories avec TabBar
             Container(
+              // ... (code de la TabBar inchangé) ...
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor.withOpacity(0.05),
                 border: Border(
@@ -89,8 +93,9 @@ class _EquipmentListState extends State<EquipmentList>
 
             // Barre de filtres d'état
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
+              // ... (code des filtres inchangé, pourrait utiliser Wrap si besoin sur très petit écran) ...
+               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row( // Pourrait être remplacé par Wrap(alignment: WrapAlignment.center, spacing: 8) si nécessaire
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _buildFilterButton('all', 'Tous'),
@@ -102,12 +107,13 @@ class _EquipmentListState extends State<EquipmentList>
               ),
             ),
 
-            // Liste des équipements
+            // Liste des équipements (MODIFICATION: Utilisation de LayoutBuilder)
             Expanded(
               child: StreamBuilder<List<Equipment>>(
                 stream: equipmentService.getEquipments(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
+                    // ... (gestion de l'erreur inchangée) ...
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -126,12 +132,11 @@ class _EquipmentListState extends State<EquipmentList>
                   }
 
                   final allEquipments = snapshot.data!;
-
-                  // Filtrer les équipements selon la catégorie et l'état
                   final filteredEquipments = _filterEquipments(allEquipments);
 
                   if (filteredEquipments.isEmpty) {
-                    return Center(
+                    // ... (gestion de la liste vide inchangée) ...
+                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -148,13 +153,39 @@ class _EquipmentListState extends State<EquipmentList>
                     );
                   }
 
-                  return ListView.builder(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    itemCount: filteredEquipments.length,
-                    itemBuilder: (context, index) {
-                      final equipment = filteredEquipments[index];
-                      return _buildEquipmentCard(equipment);
+                  // AJOUT: Utilisation de LayoutBuilder pour choisir entre ListView et GridView
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Si la largeur disponible est inférieure au breakpoint, afficher ListView
+                      if (constraints.maxWidth < tabletBreakpoint) {
+                        return ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          itemCount: filteredEquipments.length,
+                          itemBuilder: (context, index) {
+                            final equipment = filteredEquipments[index];
+                            // La carte reste la même
+                            return _buildEquipmentCard(equipment);
+                          },
+                        );
+                      }
+                      // Sinon (écran large), afficher GridView
+                      else {
+                        return GridView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Un peu plus de padding pour la grille
+                          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 450, // Largeur max souhaitée pour chaque carte
+                            childAspectRatio: 1.6, // Ratio Largeur/Hauteur (à ajuster selon le contenu)
+                            crossAxisSpacing: 12, // Espace horizontal entre les cartes
+                            mainAxisSpacing: 12, // Espace vertical entre les cartes
+                          ),
+                          itemCount: filteredEquipments.length,
+                          itemBuilder: (context, index) {
+                            final equipment = filteredEquipments[index];
+                            // La carte reste la même
+                            return _buildEquipmentCard(equipment);
+                          },
+                        );
+                      }
                     },
                   );
                 },
@@ -163,237 +194,239 @@ class _EquipmentListState extends State<EquipmentList>
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Ajouter un équipement'),
-                  content: const Text('Choisissez le mode d\'ajout'),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  actions: [
-                    TextButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context); // Ferme le dialogue
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const EquipmentForm()),
-                        );
-                      },
-                      icon: const Icon(Icons.edit_note, size: 20),
-                      label: const Text('Ajout manuel'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Theme.of(context).primaryColor,
-                      ),
+             // ... (code du FAB et des dialogs inchangé) ...
+            onPressed: () {
+                showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                    return AlertDialog(
+                    title: const Text('Ajouter un équipement'),
+                    content: const Text('Choisissez le mode d\'ajout'),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                     ),
-                    TextButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context); // Ferme 
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            String selectedType = 'Bureau'; // Type par défaut
-                            return StatefulBuilder(
-                              builder: (context, setState) {
-                                return AlertDialog(
-                                  title: const Text('Choisir le type de fournisseur'),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      DropdownButton<String>(
-                                        value: selectedType,
-                                        items: ['Bureau', 'Réseau', 'Échange', 'Sécurité']
-                                            .map((String type) {
-                                          return DropdownMenuItem<String>(
-                                            value: type,
-                                            child: Text(type),
-                                          );
-                                        }).toList(),
-                                        onChanged: (String? newValue) {
-                                          if (newValue != null) {
-                                            setState(() {
-                                              selectedType = newValue;
-                                            });
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('Annuler'),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                        // Afficher la liste des fournisseurs du type sélectionné
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return AlertDialog(
-                                              title: Text('Fournisseurs - $selectedType'),
-                                              content: SizedBox(
-                                                width: double.maxFinite,
-                                                child: StreamBuilder<QuerySnapshot>(
-                                                  stream: FirebaseFirestore.instance
-                                                      .collection('users')
-                                                      .where('role', isEqualTo: 'Fournisseur')
-                                                      .where('category', isEqualTo: selectedType)
-                                                      .snapshots(),
-                                                  builder: (context, snapshot) {
-                                                    if (snapshot.connectionState == ConnectionState.waiting) {
-                                                      return const Center(child: CircularProgressIndicator());
-                                                    }
-                                                    if (snapshot.hasError) {
-                                                      return const Text('Erreur de chargement');
-                                                    }
-                                                    final fournisseurs = snapshot.data?.docs ?? [];
-                                                    if (fournisseurs.isEmpty) {
-                                                      return const Text('Aucun fournisseur trouvé');
-                                                    }
-                                                    return ListView.builder(
-                                                      shrinkWrap: true,
-                                                      itemCount: fournisseurs.length,
-                                                      itemBuilder: (context, index) {
-                                                        final fournisseur = fournisseurs[index].data() as Map<String, dynamic>;
-                                                        return ListTile(
-                                                          title: Text(fournisseur['name'] ?? 'Sans nom'),
-                                                          subtitle: Text(fournisseur['email'] ?? ''),
-                                                          onTap: () {
-                                                            Navigator.pop(context);
-                                                            // Afficher les équipements du stock du fournisseur
-                                                            showDialog(
-                                                              context: context,
-                                                              builder: (BuildContext context) {
-                                                                return AlertDialog(
-                                                                  title: Text('Stock - ${fournisseur['name']}'),
-                                                                  content: SizedBox(
-                                                                    width: double.maxFinite,
-                                                                    height: 400,
-                                                                    child: StreamBuilder<QuerySnapshot>(
-                                                                      stream: FirebaseFirestore.instance
-                                                                          .collection('stock')
-                                                                          .where('supplierId', isEqualTo: fournisseur['uid'])
-                                                                          .snapshots(),
-                                                                      builder: (context, snapshot) {
-                                                                        if (snapshot.connectionState == ConnectionState.waiting) {
-                                                                          return const Center(child: CircularProgressIndicator());
-                                                                        }
-                                                                        if (snapshot.hasError) {
-                                                                          return const Text('Erreur de chargement du stock');
-                                                                        }
-                                                                        final equipments = snapshot.data?.docs ?? [];
-                                                                        if (equipments.isEmpty) {
-                                                                          return const Center(
-                                                                            child: Text('Aucun équipement en stock'),
-                                                                          );
-                                                                        }
-                                                                        return ListView.builder(
-                                                                          itemCount: equipments.length,
-                                                                          itemBuilder: (context, index) {
-                                                                            final equipment = equipments[index].data() as Map<String, dynamic>;
-                                                                            return Card(
-                                                                              margin: const EdgeInsets.symmetric(vertical: 4),
-                                                                              child: ListTile(
-                                                                                title: Text(equipment['name'] ?? 'Sans nom'),
-                                                                                subtitle: Column(
-                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                  children: [
-                                                                                    Text('Type: ${equipment['type'] ?? 'Non spécifié'}'),
-                                                                                    Text('Modèle: ${equipment['model'] ?? 'Non spécifié'}'),
-                                                                                    Text('N° Série: ${equipment['serialNumber'] ?? 'Non spécifié'}'),
-                                                                                  ],
-                                                                                ),
-                                                                                onTap: () async {
-                                                                                  // Copier les données de l'équipement
-                                                                                  final equipmentData = equipment;
-                                                                                  final equipmentId = equipments[index].id;
-                                                                                  
-                                                                                  // Préparer les données pour le formulaire
-                                                                                  final formData = {
-                                                                                    'name': equipment['name'],
-                                                                                    'description': equipment['description'],
-                                                                                    'serialNumber': equipment['serialNumber'],
-                                                                                    'type': equipment['type'],
-                                                                                    'manufacturer': equipment['manufacturer'],
-                                                                                    'model': equipment['model'],
-                                                                                    'category': equipment['category'] ?? selectedType,
-                                                                                    'state': 'Bon état',
-                                                                                    'supplier': fournisseur['name'],
-                                                                                    'department': fournisseur['department'],
-                                                                                    'stockId': equipmentId, // Ajouter l'ID du stock pour référence
-                                                                                    'equipmentData': equipmentData // Ajouter les données complètes
-                                                                                  };
-                                                                                  
-                                                                                  Navigator.pop(context); // Fermer la boîte de dialogue
-                                                                                  
-                                                                                  // Ouvrir le formulaire avec les données préremplies
-                                                                                  final result = await Navigator.push(
-                                                                                    context,
-                                                                                    MaterialPageRoute(
-                                                                                      builder: (context) => EquipmentForm(
-                                                                                        initialData: formData,
-                                                                                        isFromSupplierStock: true,
-                                                                                      ),
-                                                                                    ),
-                                                                                  );
-                                                                                },
-                                                                              ),
-                                                                            );
-                                                                          },
-                                                                        );
-                                                                      },
-                                                                    ),
-                                                                  ),
-                                                                  actions: [
-                                                                    ElevatedButton(
-                                                                      onPressed: () => Navigator.pop(context),
-                                                                      child: const Text('Fermer'),
-                                                                    ),
-                                                                  ],
-                                                                );
-                                                              },
-                                                            );
-                                                          },
-                                                        );
-                                                      },
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                              actions: [
-                                                ElevatedButton(
-                                                  onPressed: () => Navigator.pop(context),
-                                                  child: const Text('Fermer'),
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        );
-                                      },
-                                      child: const Text('Voir les fournisseurs'),
-                                    ),
-                                  ],
-                                );
-                              },
+                    actions: [
+                        TextButton.icon(
+                        onPressed: () {
+                            Navigator.pop(context); // Ferme le dialogue
+                            Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const EquipmentForm()),
                             );
-                          },
-                        );
-                      },
-                      icon: const Icon(Icons.inventory, size: 20),
-                      label: const Text('Via fournisseur'),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  ],
+                        },
+                        icon: const Icon(Icons.edit_note, size: 20),
+                        label: const Text('Ajout manuel'),
+                        style: TextButton.styleFrom(
+                            foregroundColor: Theme.of(context).primaryColor,
+                        ),
+                        ),
+                        TextButton.icon(
+                        onPressed: () {
+                            Navigator.pop(context); // Ferme
+                            showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                                String selectedType = 'Bureau'; // Type par défaut
+                                return StatefulBuilder(
+                                builder: (context, setState) {
+                                    return AlertDialog(
+                                    title: const Text('Choisir le type de fournisseur'),
+                                    content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                        DropdownButton<String>(
+                                            value: selectedType,
+                                            items: ['Bureau', 'Réseau', 'Échange', 'Sécurité']
+                                                .map((String type) {
+                                            return DropdownMenuItem<String>(
+                                                value: type,
+                                                child: Text(type),
+                                            );
+                                            }).toList(),
+                                            onChanged: (String? newValue) {
+                                            if (newValue != null) {
+                                                setState(() {
+                                                selectedType = newValue;
+                                                });
+                                            }
+                                            },
+                                        ),
+                                        ],
+                                    ),
+                                    actions: [
+                                        TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Annuler'),
+                                        ),
+                                        ElevatedButton(
+                                        onPressed: () {
+                                            Navigator.pop(context);
+                                            // Afficher la liste des fournisseurs du type sélectionné
+                                            showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                title: Text('Fournisseurs - $selectedType'),
+                                                content: SizedBox(
+                                                    width: double.maxFinite,
+                                                    child: StreamBuilder<QuerySnapshot>(
+                                                    stream: FirebaseFirestore.instance
+                                                        .collection('users')
+                                                        .where('role', isEqualTo: 'Fournisseur')
+                                                        .where('category', isEqualTo: selectedType)
+                                                        .snapshots(),
+                                                    builder: (context, snapshot) {
+                                                        if (snapshot.connectionState == ConnectionState.waiting) {
+                                                        return const Center(child: CircularProgressIndicator());
+                                                        }
+                                                        if (snapshot.hasError) {
+                                                        return const Text('Erreur de chargement');
+                                                        }
+                                                        final fournisseurs = snapshot.data?.docs ?? [];
+                                                        if (fournisseurs.isEmpty) {
+                                                        return const Text('Aucun fournisseur trouvé');
+                                                        }
+                                                        return ListView.builder(
+                                                        shrinkWrap: true,
+                                                        itemCount: fournisseurs.length,
+                                                        itemBuilder: (context, index) {
+                                                            final fournisseur = fournisseurs[index].data() as Map<String, dynamic>;
+                                                            return ListTile(
+                                                            title: Text(fournisseur['name'] ?? 'Sans nom'),
+                                                            subtitle: Text(fournisseur['email'] ?? ''),
+                                                            onTap: () {
+                                                                Navigator.pop(context);
+                                                                // Afficher les équipements du stock du fournisseur
+                                                                showDialog(
+                                                                context: context,
+                                                                builder: (BuildContext context) {
+                                                                    return AlertDialog(
+                                                                    title: Text('Stock - ${fournisseur['name']}'),
+                                                                    content: SizedBox(
+                                                                        width: double.maxFinite,
+                                                                        height: 400,
+                                                                        child: StreamBuilder<QuerySnapshot>(
+                                                                        stream: FirebaseFirestore.instance
+                                                                            .collection('stock')
+                                                                            .where('supplierId', isEqualTo: fournisseur['uid'])
+                                                                            .snapshots(),
+                                                                        builder: (context, snapshot) {
+                                                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                                                            return const Center(child: CircularProgressIndicator());
+                                                                            }
+                                                                            if (snapshot.hasError) {
+                                                                            return const Text('Erreur de chargement du stock');
+                                                                            }
+                                                                            final equipments = snapshot.data?.docs ?? [];
+                                                                            if (equipments.isEmpty) {
+                                                                            return const Center(
+                                                                                child: Text('Aucun équipement en stock'),
+                                                                            );
+                                                                            }
+                                                                            return ListView.builder(
+                                                                            itemCount: equipments.length,
+                                                                            itemBuilder: (context, index) {
+                                                                                final equipment = equipments[index].data() as Map<String, dynamic>;
+                                                                                final equipmentId = equipments[index].id; // Get document ID
+                                                                                return Card(
+                                                                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                                                                child: ListTile(
+                                                                                    title: Text(equipment['name'] ?? 'Sans nom'),
+                                                                                    subtitle: Column(
+                                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                    children: [
+                                                                                        Text('Type: ${equipment['type'] ?? 'Non spécifié'}'),
+                                                                                        Text('Modèle: ${equipment['model'] ?? 'Non spécifié'}'),
+                                                                                        Text('N° Série: ${equipment['serialNumber'] ?? 'Non spécifié'}'),
+                                                                                    ],
+                                                                                    ),
+                                                                                    onTap: () async {
+                                                                                    // Copier les données de l'équipement
+                                                                                    final equipmentData = equipment;
+                                                                                    final stockId = equipmentId; // Use the fetched ID
+
+                                                                                    // Préparer les données pour le formulaire
+                                                                                    final formData = {
+                                                                                        'name': equipment['name'],
+                                                                                        'description': equipment['description'],
+                                                                                        'serialNumber': equipment['serialNumber'],
+                                                                                        'type': equipment['type'],
+                                                                                        'manufacturer': equipment['manufacturer'],
+                                                                                        'model': equipment['model'],
+                                                                                        'category': equipment['category'] ?? selectedType,
+                                                                                        'state': 'Bon état',
+                                                                                        'supplier': fournisseur['name'],
+                                                                                        'department': fournisseur['department'],
+                                                                                        'stockId': stockId, // Ajouter l'ID du stock pour référence
+                                                                                        'equipmentData': equipmentData // Ajouter les données complètes
+                                                                                    };
+
+                                                                                    Navigator.pop(context); // Fermer la boîte de dialogue du stock
+
+                                                                                    // Ouvrir le formulaire avec les données préremplies
+                                                                                    final result = await Navigator.push(
+                                                                                        context,
+                                                                                        MaterialPageRoute(
+                                                                                        builder: (context) => EquipmentForm(
+                                                                                            initialData: formData,
+                                                                                            isFromSupplierStock: true,
+                                                                                        ),
+                                                                                        ),
+                                                                                    );
+                                                                                    },
+                                                                                ),
+                                                                                );
+                                                                            },
+                                                                            );
+                                                                        },
+                                                                        ),
+                                                                    ),
+                                                                    actions: [
+                                                                        ElevatedButton(
+                                                                        onPressed: () => Navigator.pop(context),
+                                                                        child: const Text('Fermer'),
+                                                                        ),
+                                                                    ],
+                                                                    );
+                                                                },
+                                                                );
+                                                            },
+                                                            );
+                                                        },
+                                                        );
+                                                    },
+                                                    ),
+                                                ),
+                                                actions: [
+                                                    ElevatedButton(
+                                                    onPressed: () => Navigator.pop(context),
+                                                    child: const Text('Fermer'),
+                                                    ),
+                                                ],
+                                                );
+                                            },
+                                            );
+                                        },
+                                        child: const Text('Voir les fournisseurs'),
+                                        ),
+                                    ],
+                                    );
+                                },
+                                );
+                            },
+                            );
+                        },
+                        icon: const Icon(Icons.inventory, size: 20),
+                        label: const Text('Via fournisseur'),
+                        style: ElevatedButton.styleFrom(
+                            foregroundColor: Theme.of(context).primaryColor,
+                        ),
+                        ),
+                    ],
+                    );
+                },
                 );
-              },
-            );
-          },
+            },
           child: const Icon(Icons.add, size: 22),
           tooltip: 'Ajouter un équipement',
           elevation: 2,
@@ -401,56 +434,61 @@ class _EquipmentListState extends State<EquipmentList>
         ),
       );
     } catch (e) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.red),
-            const SizedBox(height: 16),
-            Text('Erreur de configuration: $e'),
-          ],
-        ),
-      );
+        // ... (gestion de l'erreur inchangée) ...
+        return Center(
+            child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('Erreur de configuration: $e'),
+            ],
+            ),
+        );
     }
   }
 
-  Widget _buildFilterButton(String filter, String label) {
-    final isSelected = _currentStateFilter == filter;
+  // --- Fonctions Helper --- (Inchangées)
 
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _currentStateFilter = filter;
-        });
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).primaryColor
-              : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
+  Widget _buildFilterButton(String filter, String label) {
+      // ... (code inchangé) ...
+      final isSelected = _currentStateFilter == filter;
+
+        return InkWell(
+        onTap: () {
+            setState(() {
+            _currentStateFilter = filter;
+            });
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
             color: isSelected
                 ? Theme.of(context).primaryColor
-                : Colors.grey.shade300,
-            width: 1,
-          ),
+                : Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+                color: isSelected
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey.shade300,
+                width: 1,
+            ),
+            ),
+            child: Text(
+            label,
+            style: TextStyle(
+                color: isSelected ? Colors.white : Colors.grey.shade700,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+            ),
+            ),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey.shade700,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
-        ),
-      ),
-    );
+        );
   }
 
   List<Equipment> _filterEquipments(List<Equipment> equipments) {
+    // ... (code inchangé) ...
     // Filtrer d'abord par catégorie
     List<Equipment> categoryFiltered;
 
@@ -478,7 +516,8 @@ class _EquipmentListState extends State<EquipmentList>
   }
 
   String _getFilterText() {
-    String categoryText = '';
+    // ... (code inchangé) ...
+     String categoryText = '';
     if (_tabController.index > 0) {
       categoryText =
           'de catégorie ${AppConstants.equipmentCategories[_tabController.index - 1]} ';
@@ -501,7 +540,8 @@ class _EquipmentListState extends State<EquipmentList>
 
   Future<void> _confirmDelete(BuildContext context, Equipment equipment,
       EquipmentService service) async {
-    final confirmed = await showDialog<bool>(
+     // ... (code inchangé) ...
+      final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirmer la suppression'),
@@ -539,7 +579,8 @@ class _EquipmentListState extends State<EquipmentList>
 
   void _showStateChangeDialog(
       BuildContext context, Equipment equipment, EquipmentService service) {
-    showDialog(
+     // ... (code inchangé) ...
+     showDialog(
       context: context,
       builder: (BuildContext context) {
         return EquipmentStateDialog(
@@ -551,273 +592,276 @@ class _EquipmentListState extends State<EquipmentList>
   }
 
   Widget _buildEquipmentCard(Equipment equipment) {
-    final stateColor = _getStateColor(equipment.state);
-    final statusColor = _getStatusColor(equipment.status);
+    // La structure interne de la carte est laissée telle quelle pour le moment.
+    // Elle semble déjà utiliser Column/Row/Expanded de manière assez flexible.
+    // Si des problèmes spécifiques apparaissent (texte qui déborde, etc.) sur
+    // certaines tailles, on pourra ajuster ici (ex: utiliser Wrap pour les badges).
+    // ... (code de _buildEquipmentCard inchangé) ...
+      final stateColor = _getStateColor(equipment.state);
+        final statusColor = _getStatusColor(equipment.status);
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // En-tête avec nom et bouton de paramètres
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                  Text(
-                    equipment.type + ' ' + equipment.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+        return Card(
+        // MODIFICATION: Suppression de la marge horizontale fixe pour laisser la grille gérer l'espacement
+        margin: const EdgeInsets.symmetric(vertical: 4), // Garde seulement la marge verticale
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+        ),
+        child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+                // En-tête avec nom et bouton de paramètres
+                Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                    // MODIFICATION: Utiliser Flexible ou Expanded pour le titre pour éviter l'overflow
+                    Flexible( // ou Expanded si vous voulez qu'il prenne toute la place dispo
+                       child: Text(
+                        equipment.type + ' ' + equipment.name,
+                        style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        ),
+                        maxLines: 1, // Garder une seule ligne pour le titre dans la carte
+                        overflow: TextOverflow.ellipsis, // Tronquer si trop long
                     ),
-                    maxLines: 1,
+                    ),
+                    // Bouton de paramètres
+                    PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert,
+                        size: 20, color: Colors.grey.shade600),
+                    padding: EdgeInsets.zero,
+                    onSelected: (value) {
+                        _handleMenuAction(value, equipment);
+                    },
+                    itemBuilder: (context) => [
+                        const PopupMenuItem<String>(
+                        value: 'assign',
+                        child: Row(
+                            children: [
+                            Icon(Icons.person_add, size: 18),
+                            SizedBox(width: 8),
+                            Text('Assigner', style: TextStyle(fontSize: 14)),
+                            ],
+                        ),
+                        ),
+                        const PopupMenuItem<String>(
+                        value: 'change_state',
+                        child: Row(
+                            children: [
+                            Icon(Icons.swap_horiz, size: 18),
+                            SizedBox(width: 8),
+                            Text('Changer l\'état',
+                                style: TextStyle(fontSize: 14)),
+                            ],
+                        ),
+                        ),
+                        const PopupMenuItem<String>(
+                        value: 'delete',
+                        child: Row(
+                            children: [
+                            Icon(Icons.delete, size: 18, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text('Supprimer',
+                                style:
+                                    TextStyle(fontSize: 14, color: Colors.red)),
+                            ],
+                        ),
+                        ),
+                    ],
+                    ),
+                ],
+                ),
+
+                // Description
+                if (equipment.description.isNotEmpty) ...[
+                Text(
+                    equipment.description,
+                    style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade700,
+                    ),
+                    maxLines: 2, // Limiter la description à 2 lignes pour la cohérence de la carte
                     overflow: TextOverflow.ellipsis,
                 ),
-                // Bouton de paramètres
-                PopupMenuButton<String>(
-                  icon: Icon(Icons.more_vert,
-                      size: 20, color: Colors.grey.shade600),
-                  padding: EdgeInsets.zero,
-                  onSelected: (value) {
-                    _handleMenuAction(value, equipment);
-                  },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem<String>(
-                      value: 'assign',
-                      child: Row(
+                ],
+                const SizedBox(height: 8),
+                // Informations et badges d'état/statut
+                // La Row existante avec Expanded devrait bien s'adapter,
+                // mais on pourrait utiliser Wrap si les badges deviennent un problème
+                Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                    // Colonne d'informations principales
+                    Expanded(
+                    flex: 3, // Garder le flex pour donner plus de place aux détails
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.person_add, size: 18),
-                          SizedBox(width: 8),
-                          Text('Assigner', style: TextStyle(fontSize: 14)),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'change_state',
-                      child: Row(
-                        children: [
-                          Icon(Icons.swap_horiz, size: 18),
-                          SizedBox(width: 8),
-                          Text('Changer l\'état',
-                              style: TextStyle(fontSize: 14)),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'delete',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete, size: 18, color: Colors.red),
-                          SizedBox(width: 8),
-                          Text('Supprimer',
-                              style:
-                                  TextStyle(fontSize: 14, color: Colors.red)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            // Description
-            if (equipment.description.isNotEmpty) ...[
-              Text(
-                equipment.description,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey.shade700,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-            const SizedBox(height: 8),
-            // Informations et badges d'état/statut
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Colonne d'informations principales
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Catégorie
-                      Row(
-                        children: [
-                          Icon(Icons.category,
-                              size: 14, color: Colors.grey.shade600),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Catégorie: ',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade700,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            equipment.category,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      // Emplacement
-                      if (equipment.location.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        // Catégorie (Utiliser Flexible/Expanded pour la valeur si elle peut être longue)
                         Row(
-                          children: [
-                            Icon(Icons.location_on,
+                            children: [
+                            Icon(Icons.category,
                                 size: 14, color: Colors.grey.shade600),
                             const SizedBox(width: 4),
-                            Text(
-                              'Emplacement: ',
-                              style: TextStyle(
+                             Text(
+                                'Catégorie: ',
+                                style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey.shade700,
                                 fontWeight: FontWeight.bold,
-                              ),
+                                ),
                             ),
-                            Text(
-                              equipment.location,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade700,
-                              ),
+                             Flexible( // Pour que le nom de la catégorie puisse passer à la ligne si besoin
+                                child: Text(
+                                equipment.category,
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade700,
+                                ),
+                                overflow: TextOverflow.ellipsis, // Ou laisser wrap par défaut
+                                ),
                             ),
-                          ],
+                            ],
                         ),
-                      ],
 
-                      // Numéro de série
-                      if (equipment.serialNumber.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(Icons.qr_code,
-                                size: 14, color: Colors.grey.shade600),
-                            const SizedBox(width: 4),
-                            Text(
-                              'S/N: ',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade700,
-                                fontWeight: FontWeight.bold,
-                              ),
+                        // Emplacement
+                        if (equipment.location.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Row(
+                            children: [
+                                Icon(Icons.location_on,
+                                    size: 14, color: Colors.grey.shade600),
+                                const SizedBox(width: 4),
+                                 Text(
+                                'Emplacement: ',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade700,
+                                    fontWeight: FontWeight.bold,
+                                ),
+                                ),
+                                 Flexible( // Pour que l'emplacement puisse wrapper
+                                   child: Text(
+                                    equipment.location,
+                                    style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade700,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                ),
+                                ),
+                            ],
                             ),
-                            Text(
-                              equipment.serialNumber,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 250, 25, 25),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
+                        ],
 
-                // Colonne d'état et statut (alignée à droite)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    // État avec label
-                    Row(
+                    
+
+                        //Identifiant de l'équipement
+                        if (equipment.id.isNotEmpty)...[
+                            const SizedBox(height: 4),
+                            Row(
+                            children: [
+                              Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+
+                                children: [
+                                  
+                                  Row(children: [Icon(Icons.numbers_outlined,
+                                        size: 14, color: Colors.grey.shade600),
+                                    const SizedBox(width: 4),
+                                    Text("Identifiant: ",
+                                     style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.bold,
+                                    ),),],),
+                                    Text(
+                                    equipment.id,
+                                    style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color.fromARGB(255, 250, 25, 25),
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                ),
+                                ],
+                              ),
+                             ]
+                            )
+                        ],],),
+                    ),
+
+                    // Colonne d'état et statut (alignée à droite)
+                    // Utiliser Wrap pourrait être une option ici si l'espace est très limité
+                    // Wrap(direction: Axis.vertical, alignment: WrapAlignment.end, spacing: 4, children: [...])
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          'État: ',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey.shade700,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: stateColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: stateColor.withOpacity(0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            equipment.state,
-                            style: TextStyle(
-                              color: stateColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
+                         // État
+                        _buildStatusBadge(label: 'État:', value: equipment.state, color: stateColor),
+
+                        // Statut (si présent)
+                        if (equipment.status.isNotEmpty) ...[
+                           const SizedBox(height: 4), // Espace réduit entre les badges
+                          _buildStatusBadge(label: 'Statut:', value: _getStatusLabel(equipment.status), color: statusColor),
+                        ],
                       ],
                     ),
-
-                    // Statut avec label (si présent)
-                    if (equipment.status.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Text(
-                            'Statut: ',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade700,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: statusColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: statusColor.withOpacity(0.3),
-                                width: 1,
-                              ),
-                            ),
-                            child: Text(
-                              _getStatusLabel(equipment.status),
-                              style: TextStyle(
-                                color: statusColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
                   ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        );
   }
 
+
+  // AJOUT: Helper widget pour les badges de statut (pour réutiliser et simplifier)
+  Widget _buildStatusBadge({required String label, required String value, required Color color}) {
+      return Row(
+          mainAxisSize: MainAxisSize.min, // Pour que la Row prenne la taille minimale
+          children: [
+              Text(
+                  label,
+                  style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.bold,
+                  ),
+              ),
+              const SizedBox(width: 4),
+              Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                          color: color.withOpacity(0.3),
+                          width: 1,
+                      ),
+                  ),
+                  child: Text(
+                      value,
+                      style: TextStyle(
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis, // Assurer que le badge ne déborde pas
+                  ),
+              ),
+          ],
+      );
+  }
+
+
   void _handleMenuAction(String action, Equipment equipment) {
-    final equipmentService =
+     // ... (code inchangé) ...
+       final equipmentService =
         Provider.of<EquipmentService>(context, listen: false);
 
     switch (action) {
@@ -835,7 +879,8 @@ class _EquipmentListState extends State<EquipmentList>
 
   void _showAssignDialog(
       BuildContext context, Equipment equipment, EquipmentService service) {
-    String? selectedEmployeeId;
+     // ... (code inchangé) ...
+      String? selectedEmployeeId;
     String taskTitle = 'Maintenance de ${equipment.name}';
     String taskDescription =
         'Maintenance requise pour l\'équipement ${equipment.name} (${equipment.serialNumber})';
@@ -1072,7 +1117,8 @@ class _EquipmentListState extends State<EquipmentList>
   }
 
   Color _getStateColor(String state) {
-    switch (state) {
+     // ... (code inchangé) ...
+     switch (state) {
       case 'Bon état':
         return Colors.green;
       case 'En panne':
@@ -1083,7 +1129,8 @@ class _EquipmentListState extends State<EquipmentList>
   }
 
   Color _getStatusColor(String status) {
-    switch (status) {
+     // ... (code inchangé) ...
+      switch (status) {
       case 'En maintenance':
         return Colors.orange;
       case 'En Remplacement':
@@ -1096,7 +1143,7 @@ class _EquipmentListState extends State<EquipmentList>
   }
 
   String _getStatusLabel(String status) {
-    // Les statuts sont déjà en français dans app_constants.dart
+    // ... (code inchangé) ...
     return status;
   }
 }

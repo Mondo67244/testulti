@@ -168,13 +168,11 @@ class AppConstants {
       'taskAssigned': 'Assignation de tâche',
       'taskStatusChanged': 'Changement de statut de tâche',
     },
-    'report': {
+    'system': {
+      'systemAction': 'Rapports d\'utilisateur',
       'reportSubmitted': 'Soumission de rapport',
       'reportUpdated': 'Modification de rapport',
       'reportStatusChanged': 'Changement de statut de rapport',
-    },
-    'system': {
-      'systemAction': 'Action système',
     },
   };
 

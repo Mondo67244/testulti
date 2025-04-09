@@ -111,7 +111,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
                 await FirebaseFirestore.instance.collection('activities').add({
                   'activityType': 'reportCreated',
                   'category': 'report',
-                  'description': 'Nouveau signalement pour ${equipment.name}',
+                  'description': 'Nouveau signalement l\'équipement " ${equipment.name} "',
                   'details': {
                     'description': _descriptionController.text,
                     'equipmentId': equipment.id,

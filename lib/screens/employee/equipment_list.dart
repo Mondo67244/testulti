@@ -19,27 +19,31 @@ class _EquipmentListState extends State<EquipmentList>
   String _currentStateFilter = 'all'; // 'all', 'functional', 'defective'
   late TabController _tabController;
 
+  // Constantes pour la mise en page responsive
+  final double wideLayoutBreakpoint = 700.0;
+  final double maxContentWidth = 800.0;
+
   @override
   void initState() {
     super.initState();
-    // Initialiser le TabController avec le nombre de catégories
     _tabController = TabController(
-        length: AppConstants.equipmentCategories.length + 1, // +1 pour "Toutes"
+        length: AppConstants.equipmentCategories.length + 1,
         vsync: this);
-
-    // Écouter les changements d'onglet pour mettre à jour l'état
-    _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
-        setState(() {});
-      }
-    });
+    _tabController.addListener(_onTabChanged);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) {
+      setState(() {});
+    }
   }
 
   Widget _buildFilterButton(String filter, String label) {
@@ -72,42 +76,23 @@ class _EquipmentListState extends State<EquipmentList>
   }
 
   List<Equipment> _filterEquipments(List<Equipment> equipments) {
-    // Filtrer d'abord par catégorie
-    var result = equipments;
+    return equipments.where((equipment) {
+      final matchesCategory = _tabController.index == 0 ||
+          equipment.category == AppConstants.equipmentCategories[_tabController.index - 1];
+      
+      final matchesState = _currentStateFilter == 'all' ||
+          (_currentStateFilter == 'functional' && equipment.state == 'Bon état') ||
+          (_currentStateFilter == 'defective' && equipment.state == 'En panne');
 
-    // Si l'index n'est pas 0 (Tout), filtrer par catégorie
-    if (_tabController.index != 0) {
-      String selectedCategory =
-          AppConstants.equipmentCategories[_tabController.index - 1];
-      result = result
-          .where((equipment) => equipment.category == selectedCategory)
-          .toList();
-    }
+      final searchLower = _searchQuery.toLowerCase();
+      final matchesSearch = _searchQuery.isEmpty ||
+          equipment.id.toLowerCase().contains(searchLower) ||
+          equipment.name.toLowerCase().contains(searchLower) ||
+          equipment.category.toLowerCase().contains(searchLower) ||
+          equipment.location.toLowerCase().contains(searchLower);
 
-    // Filtrer par état
-    if (_currentStateFilter != 'all') {
-      if (_currentStateFilter == 'functional') {
-        result =
-            result.where((equipment) => equipment.state == 'Bon état').toList();
-      } else if (_currentStateFilter == 'defective') {
-        result =
-            result.where((equipment) => equipment.state == 'En panne').toList();
-      }
-    }
-
-    // Filtrer par recherche
-    if (_searchQuery.isNotEmpty) {
-      result = result
-          .where((item) =>
-              item.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              item.category
-                  .toLowerCase()
-                  .contains(_searchQuery.toLowerCase()) ||
-              item.location.toLowerCase().contains(_searchQuery.toLowerCase()))
-          .toList();
-    }
-
-    return result;
+      return matchesCategory && matchesState && matchesSearch;
+    }).toList();
   }
 
   String _getFilterText() {
@@ -126,9 +111,19 @@ class _EquipmentListState extends State<EquipmentList>
         Provider.of<EquipmentService>(context, listen: false);
 
     return Scaffold(
-          backgroundColor: const Color.fromARGB(255, 240, 232, 255),
-
-      body: Column(
+      backgroundColor: const Color.fromARGB(255, 240, 232, 255),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWideLayout = constraints.maxWidth >= wideLayoutBreakpoint;
+            final contentPadding = isWideLayout ? 24.0 : 12.0;
+            
+            return Center(
+              child: Container(
+                constraints: BoxConstraints(
+                  maxWidth: isWideLayout ? maxContentWidth : double.infinity,
+                ),
+                child: Column(
         children: [
           // Barre de catégories avec TabBar
           Container(
@@ -259,107 +254,138 @@ class _EquipmentListState extends State<EquipmentList>
                   );
                 }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: filteredEquipments.length,
-                  itemBuilder: (context, index) {
-                    final equipment = filteredEquipments[index];
-                    return Card(
-                      elevation: 1,
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 4, vertical: 4),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(12),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  EquipmentDetails(equipment: equipment),
-                            ),
-                          );
-                        },
-                        leading: CircleAvatar(
-                          backgroundColor:
-                              _getCategoryColor(equipment.category),
-                          child: Text(
-                            equipment.name.isNotEmpty
-                                ? equipment.name[0].toUpperCase()
-                                : '?',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        title: Text(
-                          equipment.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Icon(Icons.category,
-                                    size: 14, color: Colors.grey[600]),
-                                const SizedBox(width: 4),
-                                Text(
-                                  equipment.category,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Icon(Icons.location_on,
-                                    size: 14, color: Colors.grey[600]),
-                                const SizedBox(width: 4),
-                                Text(
-                                  equipment.location,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Chip(
-                              label: Text(
-                                equipment.state,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: _getStateColor(equipment.state),
-                                ),
-                              ),
-                              backgroundColor: _getStateColor(equipment.state)
-                                  .withOpacity(0.1),
-                              padding: EdgeInsets.zero,
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                              labelPadding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: -2),
-                            ),
-                          ],
-                        ),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                return isWideLayout
+                  ? GridView.builder(
+                      padding: EdgeInsets.all(contentPadding),
+                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 450,
+                        childAspectRatio: 1.8,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
                       ),
+                      itemCount: filteredEquipments.length,
+                      itemBuilder: (context, index) {
+                        final equipment = filteredEquipments[index];
+                        return _buildEquipmentCard(equipment, context);
+                      },
+                    )
+                  : ListView.builder(
+                      padding: EdgeInsets.all(contentPadding),
+                      itemCount: filteredEquipments.length,
+                      itemBuilder: (context, index) {
+                        final equipment = filteredEquipments[index];
+                        return _buildEquipmentCard(equipment, context);
+                      },
                     );
-                  },
-                );
-              },
+                },
+              ),
+                ),
+              
+              ],
+              )
+            )
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEquipmentCard(Equipment equipment, BuildContext context) {
+    return Card(
+      elevation: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(12),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EquipmentDetails(equipment: equipment),
+            ),
+          );
+        },
+        leading: CircleAvatar(
+          backgroundColor: _getCategoryColor(equipment.category),
+          child: Text(
+            equipment.name.isNotEmpty
+                ? equipment.name[0].toUpperCase()
+                : '?',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
           ),
-        ],
+        ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                equipment.type + ' ' + equipment.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            Text(
+              '#${equipment.id}',
+              style: const TextStyle(
+                color: Color.fromARGB(255, 255, 6, 6),
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.category, size: 14, color: Colors.black87),
+                const SizedBox(width: 4),
+                Text(
+                  equipment.category,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.location_on_rounded, size: 14, color: Colors.black87),
+                const SizedBox(width: 4),
+                Text(
+                  equipment.location,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Chip(
+              label: Text(
+                equipment.state,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: _getStateColor(equipment.state),
+                ),
+              ),
+              backgroundColor: _getStateColor(equipment.state).withOpacity(0.1),
+              padding: EdgeInsets.zero,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              labelPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: -2),
+            ),
+          ],
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
       ),
     );
   }

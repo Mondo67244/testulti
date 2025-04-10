@@ -180,7 +180,7 @@ class _EquipmentListState extends State<EquipmentList>
                           gridDelegate:
                               const SliverGridDelegateWithMaxCrossAxisExtent(
                             maxCrossAxisExtent:
-                                450, // Largeur max souhaitée pour chaque carte
+                                350, // Largeur max souhaitée pour chaque carte
                             childAspectRatio:
                                 1.6, // Ratio Largeur/Hauteur (à ajuster selon le contenu)
                             crossAxisSpacing:
@@ -502,10 +502,10 @@ class _EquipmentListState extends State<EquipmentList>
               },
             );
           },
-          child: const Icon(Icons.add, size: 22),
           tooltip: 'Ajouter un équipement',
           elevation: 2,
           mini: false,
+          child: const Icon(Icons.add, size: 22),
         ),
       );
     } catch (e) {
@@ -615,7 +615,6 @@ class _EquipmentListState extends State<EquipmentList>
 
   Future<void> _confirmDelete(BuildContext context, Equipment equipment,
       EquipmentService service) async {
-    // ... (code inchangé) ...
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -655,7 +654,6 @@ class _EquipmentListState extends State<EquipmentList>
 
   void _showStateChangeDialog(
       BuildContext context, Equipment equipment, EquipmentService service) {
-    // ... (code inchangé) ...
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -668,11 +666,7 @@ class _EquipmentListState extends State<EquipmentList>
   }
 
   Widget _buildEquipmentCard(Equipment equipment) {
-    // La structure interne de la carte est laissée telle quelle pour le moment.
-    // Elle semble déjà utiliser Column/Row/Expanded de manière assez flexible.
-    // Si des problèmes spécifiques apparaissent (texte qui déborde, etc.) sur
-    // certaines tailles, on pourra ajuster ici (ex: utiliser Wrap pour les badges).
-    // ... (code de _buildEquipmentCard inchangé) ...
+    
     final stateColor = _getStateColor(equipment.state);
     final statusColor = _getStatusColor(equipment.status);
 
@@ -693,18 +687,25 @@ class _EquipmentListState extends State<EquipmentList>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // MODIFICATION: Utiliser Flexible ou Expanded pour le titre pour éviter l'overflow
                 Flexible(
                   // ou Expanded si vous voulez qu'il prenne toute la place dispo
-                  child: Text(
-                    equipment.type + ' ' + equipment.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                    maxLines:
-                        1, // Garder une seule ligne pour le titre dans la carte
-                    overflow: TextOverflow.ellipsis, // Tronquer si trop long
+                  child: Column(
+                    children: [
+                      Text(
+                        '${equipment.type} ${equipment.name}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                        maxLines:
+                            1, // Garder une seule ligne pour le titre dans la carte
+                        overflow: TextOverflow.ellipsis, // Tronquer si trop long
+                      ),
+                      Text(equipment.id,
+                      style: 
+                      const TextStyle(color: Color.fromARGB(180, 184, 53, 53),
+                      fontSize: 10,fontWeight: FontWeight.bold),),
+                    ],
                   ),
                 ),
                 // Bouton de paramètres
@@ -768,58 +769,25 @@ class _EquipmentListState extends State<EquipmentList>
               ),
             ],
             const SizedBox(height: 8),
-            // Informations et badges d'état/statut
-            // La Row existante avec Expanded devrait bien s'adapter,
-            // mais on pourrait utiliser Wrap si les badges deviennent un problème
+           
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Colonne d'informations principales
                 Expanded(
                   flex:
-                      3, // Garder le flex pour donner plus de place aux détails
+                      4, // Garder le flex pour donner plus de place aux détails
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Catégorie (Utiliser Flexible/Expanded pour la valeur si elle peut être longue)
-                      Row(
-                        children: [
-                          Icon(Icons.category,
-                              size: 14, color: Colors.grey.shade600),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Catégorie: ',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade700,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Flexible(
-                            // Pour que le nom de la catégorie puisse passer à la ligne si besoin
-                            child: Text(
-                              equipment.category,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade700,
-                              ),
-                              overflow: TextOverflow
-                                  .ellipsis, // Ou laisser wrap par défaut
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      // Emplacement
-                      if (equipment.location.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Catégorie (Utiliser Flexible/Expanded pour la valeur si elle peut être longue)
                         Row(
                           children: [
-                            Icon(Icons.location_on,
+                            Icon(Icons.category,
                                 size: 14, color: Colors.grey.shade600),
                             const SizedBox(width: 4),
                             Text(
-                              'Emplacement: ',
+                              'Catégorie: ',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey.shade700,
@@ -827,62 +795,53 @@ class _EquipmentListState extends State<EquipmentList>
                               ),
                             ),
                             Flexible(
-                              // Pour que l'emplacement puisse wrapper
+                              // Pour que le nom de la catégorie puisse passer à la ligne si besoin
                               child: Text(
-                                equipment.location,
+                                equipment.category,
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey.shade700,
                                 ),
-                                overflow: TextOverflow.ellipsis,
+                                overflow: TextOverflow
+                                    .ellipsis, // Ou laisser wrap par défaut
                               ),
                             ),
                           ],
                         ),
-                      ],
 
-                      //Identifiant de l'équipement
-                      if (equipment.id.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Row(children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        // Emplacement
+                        if (equipment.location.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.numbers_outlined,
-                                      size: 14, color: Colors.grey.shade600),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    "Identifiant: ",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade700,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              Icon(Icons.location_on,
+                                  size: 14, color: Colors.grey.shade600),
+                              const SizedBox(width: 4),
                               Text(
-                                equipment.id,
-                                style: const TextStyle(
-                                  fontSize: 11,
+                                'Emplacement: ',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade700,
                                   fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 250, 25, 25),
                                 ),
-                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Flexible(
+                                // Pour que l'emplacement puisse wrapper
+                                child: Text(
+                                  equipment.location,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ],
                           ),
-                        ])
-                      ],
-                    ],
-                  ),
+                        ],
+                      ]),
                 ),
-
-                // Colonne d'état et statut (alignée à droite)
-                // Utiliser Wrap pourrait être une option ici si l'espace est très limité
-                // Wrap(direction: Axis.vertical, alignment: WrapAlignment.end, spacing: 4, children: [...])
+                const SizedBox(width: 30),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [

@@ -70,6 +70,7 @@ class _TaskListState extends State<TaskList> with SingleTickerProviderStateMixin
     return Scaffold(
        backgroundColor: const Color.fromARGB(255, 240, 232, 255),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Mes Tâches'),
         bottom: TabBar(
           controller: _tabController,

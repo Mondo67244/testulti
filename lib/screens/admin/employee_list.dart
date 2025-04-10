@@ -218,6 +218,7 @@ class _EmployeeListState extends State<EmployeeList> {
                       return GridView.builder(
                         padding: const EdgeInsets.all(12),
                         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                          mainAxisExtent: 200,
                           maxCrossAxisExtent: 300,
                           childAspectRatio: 1.2,
                           crossAxisSpacing: 12,
@@ -326,10 +327,31 @@ class _EmployeeListState extends State<EmployeeList> {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
+              
+              
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: _getRoleColor(employee.role).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  _getRoleLabel(employee.role),
+                  style: TextStyle(
+                    color: _getRoleColor(employee.role),
+                    fontWeight: FontWeight.w500,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               Row(
                 children: [
                   Text(
-                    '   ID :   ',
+                    ' ID :   ',
                     style: TextStyle(
                       fontSize: 7,
                       fontWeight: FontWeight.bold,
@@ -349,25 +371,6 @@ class _EmployeeListState extends State<EmployeeList> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
-              ),
-              const SizedBox(height: 3),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 2,
-                ),
-                decoration: BoxDecoration(
-                  color: _getRoleColor(employee.role).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  _getRoleLabel(employee.role),
-                  style: TextStyle(
-                    color: _getRoleColor(employee.role),
-                    fontWeight: FontWeight.w500,
-                    fontSize: 11,
-                  ),
-                ),
               ),
             ],
           ),

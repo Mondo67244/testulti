@@ -50,14 +50,16 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Non-editable field for equipment name
-            Text('Entrer les détails de l\'équiment ${widget.equipment.name}',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Entrer les détails de l\'équiment ${widget.equipment.name}',
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
             // Dropdown for type of issue
             DropdownButtonFormField<String>(
               decoration: const InputDecoration(
@@ -239,6 +241,8 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
           ],
         ),
       ),
-    );
+      ),
+      )
+      );
   }
 }

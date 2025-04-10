@@ -45,14 +45,15 @@ class _EmployeeFormState extends State<EmployeeForm> {
         ),
       ),
       body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
                   const SizedBox(
                     height: 50,
                   ),
@@ -166,7 +167,7 @@ class _EmployeeFormState extends State<EmployeeForm> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   void _showCategoryDropdown() {}

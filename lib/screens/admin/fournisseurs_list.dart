@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:gestion_parc_informatique/screens/admin/admin_dashboard.dart';
 
 class FournisseursList extends StatefulWidget {
   @override
@@ -29,6 +30,14 @@ class _FournisseursListState extends State<FournisseursList> with SingleTickerPr
     return Scaffold(
           backgroundColor: const Color.fromARGB(255, 240, 232, 255),
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const AdminDashboard()),
+                        ),
+        ),
         title: const Text('Liste des Fournisseurs'),
         bottom: TabBar(
           controller: _tabController,
@@ -59,11 +68,27 @@ class _FournisseursListState extends State<FournisseursList> with SingleTickerPr
                 return const Center(child: Text('Aucun fournisseur trouvé.'));
               }
 
-              return ListView(
-                children: users.map((userDoc) {
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final isSmallScreen = constraints.maxWidth < 600;
+                  final isMediumScreen = constraints.maxWidth >= 600 && constraints.maxWidth <= 918;
+                  final crossAxisCount = isSmallScreen ? 1 : (isMediumScreen ? 2 : 3);
+                  
+                  return GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      childAspectRatio: isSmallScreen ? 2.5 : (isMediumScreen ? 2.0 : 1.8),
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      mainAxisExtent: 150,
+                    ),
+                    itemCount: users.length,
+                    padding: EdgeInsets.all(isSmallScreen ? 8 : 16),
+                    itemBuilder: (context, index) {
+                      DocumentSnapshot userDoc = users[index];
                   Map<String, dynamic> user = userDoc.data() as Map<String, dynamic>;
 
-                  return InkWell(
+                      return InkWell(
                     onTap: () {
                       showDialog(
                         context: context,
@@ -82,6 +107,7 @@ class _FournisseursListState extends State<FournisseursList> with SingleTickerPr
                                   controller: _descriptionController,
                                   decoration: const InputDecoration(labelText: 'Description de la commande'),
                                   maxLines: 3,
+                                  maxLength: 125,
                                 ),
                               ],
                             ),
@@ -120,10 +146,10 @@ class _FournisseursListState extends State<FournisseursList> with SingleTickerPr
                       );
                     },
                     child: Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      margin: EdgeInsets.all(isSmallScreen ? 4 : 8),
                       elevation: 3,
                       child: Padding(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -133,7 +159,7 @@ class _FournisseursListState extends State<FournisseursList> with SingleTickerPr
                               const SizedBox(width: 8),
                               Text(
                                 user['name'] ?? 'Nom inconnu',
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                style: TextStyle(fontSize: isSmallScreen ? 16 : 18, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -147,7 +173,9 @@ class _FournisseursListState extends State<FournisseursList> with SingleTickerPr
                     ),
                   ),
                   );
-                }).toList(),
+                    },
+                  );
+                },
               );
             },
           );

@@ -131,22 +131,17 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
       appBar: AppBar(
         title: const Text("Modifier votre profil"),
       ),
-      body: GestureDetector(
-        onPanUpdate: (details) {
-          if (details.delta.dx > 0) {
-            // Handle swipe to the right
-          } else if (details.delta.dx < 0) {
-            // Handle swipe to the left
-          }
-        },
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                   const Text(
                     'Renseigner les informations à modifier.',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -255,6 +250,6 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

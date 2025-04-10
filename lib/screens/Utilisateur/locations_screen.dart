@@ -222,10 +222,11 @@ class _LocationsScreenState extends State<LocationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       backgroundColor: const Color.fromARGB(255, 240, 232, 255),
       appBar: AppBar(
-        // automaticallyImplyLeading: false, // Keep back arrow if needed
-        title: const Text('Choix de position'), // Titre plus pertinent?
+        automaticallyImplyLeading: false,
+        title: const Text('Choix de position'),
       ),
       body: Column(
         children: [

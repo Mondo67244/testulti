@@ -14,6 +14,22 @@ class EmployeeDashboard extends StatefulWidget {
 }
 
 class _EmployeeDashboardState extends State<EmployeeDashboard> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAuthentication();
+    });
+  }
+
+  void _checkAuthentication() {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final user = authService.currentUser;
+    if (user == null) {
+      Navigator.pushReplacementNamed(context, AppConstants.routeLogin);
+    }
+  }
+
   int _selectedIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -49,6 +65,13 @@ Future<void> _confirmLogout(BuildContext context) async {
   if (confirmed ?? false) {
     final authService = Provider.of<AuthService>(context, listen: false);
     await authService.signOut(context);
+    if (!mounted) return;
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      AppConstants.routeLogin,
+      (route) => false,
+      );
+    
   }
 }
 
@@ -56,9 +79,11 @@ Future<void> _confirmLogout(BuildContext context) async {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context, listen: false);
     
-    return FutureBuilder<Employee?>(
-      future: authService.getCurrentEmployee(),
-      builder: (context, snapshot) {
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: FutureBuilder<Employee?>(
+        future: authService.getCurrentEmployee(),
+        builder: (context, snapshot) {
         // Nom par défaut si l'employé n'est pas encore chargé
         String employeeName = "Employé";
         
@@ -66,7 +91,7 @@ Future<void> _confirmLogout(BuildContext context) async {
           employeeName = snapshot.data!.name;
         }
         
-        return Scaffold(
+          return Scaffold(
           key: _scaffoldKey,
           backgroundColor: const Color.fromARGB(255, 240, 232, 255),
           drawer: Drawer(
@@ -148,8 +173,10 @@ Future<void> _confirmLogout(BuildContext context) async {
               ),
             ],
           ),
-        );
+          );
+    
       }
+      ),
     );
   }
 }

@@ -17,6 +17,21 @@ class FournisseurDashboard extends StatefulWidget {
 }
 
 class _FournisseurDashboardState extends State<FournisseurDashboard> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAuthentication();
+    });
+  }
+
+  void _checkAuthentication() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      Navigator.pushReplacementNamed(context, AppConstants.routeLogin);
+    }
+  }
+
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
@@ -58,7 +73,11 @@ class _FournisseurDashboardState extends State<FournisseurDashboard> {
     if (confirm == true) {
       await Provider.of<AuthService>(context, listen: false).signOut(context);
       if (!mounted) return;
-      Navigator.pushReplacementNamed(context, AppConstants.routeLogin);
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppConstants.routeLogin,
+        (route) => false,
+      );
     }
   }
 
@@ -69,7 +88,9 @@ class _FournisseurDashboardState extends State<FournisseurDashboard> {
       return const Center(child: Text('Veuillez vous connecter.'));
     }
 
-    return StreamBuilder<DocumentSnapshot>(
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
@@ -184,6 +205,7 @@ class _FournisseurDashboardState extends State<FournisseurDashboard> {
       ),
     );
   }
-);
+    ),
+  );
   }
   }

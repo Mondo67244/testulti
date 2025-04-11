@@ -82,7 +82,7 @@ class _UtilisateurDashboardState extends State<UtilisateurDashboard> {
     if (confirmed == true) {
       await Provider.of<AuthService>(context, listen: false).signOut(context);
       if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/login');
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
     }
   }
 
@@ -90,7 +90,8 @@ class _UtilisateurDashboardState extends State<UtilisateurDashboard> {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      return const Center(child: Text('Veuillez vous connecter.'));
+      Navigator.of(context).pushReplacementNamed('/login');
+      return const SizedBox.shrink();
     }
 
     return StreamBuilder<DocumentSnapshot>(
@@ -106,9 +107,13 @@ class _UtilisateurDashboardState extends State<UtilisateurDashboard> {
           final userData = snapshot.data!;
           final name = userData['name'] ?? '';
 
-          return Scaffold(
-          key: _scaffoldKey,
-          backgroundColor: const Color.fromARGB(255, 240, 232, 255),
+          return WillPopScope(
+            onWillPop: () async {
+              return false; // Empêche le retour en arrière
+            },
+            child: Scaffold(
+              key: _scaffoldKey,
+              backgroundColor: const Color.fromARGB(255, 240, 232, 255),
             drawer: Drawer(
               child: ListView(
                 padding: EdgeInsets.zero,
@@ -183,7 +188,7 @@ class _UtilisateurDashboardState extends State<UtilisateurDashboard> {
               currentIndex: _selectedIndex,
               onTap: _onItemTapped,
             ),
-          );
+          ));
         });
   }
 }

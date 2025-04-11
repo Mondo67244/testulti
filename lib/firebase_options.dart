@@ -21,10 +21,7 @@ class DefaultFirebaseOptions {
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -44,6 +41,7 @@ class DefaultFirebaseOptions {
     projectId: 'mondodev2',
     authDomain: 'mondodev2.firebaseapp.com',
     storageBucket: 'mondodev2.firebasestorage.app',
+    measurementId: 'G-NPVNGNMQMJ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -61,6 +59,16 @@ class DefaultFirebaseOptions {
     projectId: 'mondodev2',
     storageBucket: 'mondodev2.firebasestorage.app',
     iosBundleId: 'com.mondo.dev.testulti',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyAmUuUNCuhmq8tZFxoN0GNBzPnV4iP7qgo',
+    appId: '1:888572217070:web:8c8dbc2a8862ef288955ff',
+    messagingSenderId: '888572217070',
+    projectId: 'mondodev2',
+    authDomain: 'mondodev2.firebaseapp.com',
+    storageBucket: 'mondodev2.firebasestorage.app',
+    measurementId: 'G-QDNQP0Z3HV',
   );
 
 }

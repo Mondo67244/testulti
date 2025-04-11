@@ -284,7 +284,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
                          children: [
                             const Icon(Icons.location_off_outlined, size: 60, color: Colors.grey),
                             const SizedBox(height: 16),
-                            Text('Aucun équipement trouvé\nà cet emplacement: "$_selectedLocation"', textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Colors.grey)),
+                            Text('Aucun équipement trouvé\nà cet emplacement: "$_selectedLocation"', textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, color: Colors.grey)),
                          ],
                       ));
                 }

@@ -248,7 +248,7 @@ class _MesRapportsState extends State<MesRapports> {
                 title: Column(
                   children: [
                     const Text('Signalement fait sur l\'équipement: ',style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(type+' '+equipmentName,style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.deepPurple)),
+                    Text('$type $equipmentName',style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.deepPurple)),
                   ],
                 ),
                 subtitle: Column(

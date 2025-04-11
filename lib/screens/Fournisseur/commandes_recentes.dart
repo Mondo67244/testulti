@@ -140,7 +140,7 @@ class AdminOrdersList extends StatelessWidget {
                                   'activityType': 'reportCreated',
                                   'category': 'report',
                                   'description':
-                                      'Nouvelle réponse à la commande: ${title}',
+                                      'Nouvelle réponse à la commande: $title',
                                   'details': {
                                     'description': responseController.text,
                                     'equipmentName': title,

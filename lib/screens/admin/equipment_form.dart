@@ -82,11 +82,7 @@ class _EquipmentFormState extends State<EquipmentForm> {
           .where('role', isEqualTo: 'Fournisseur')
           .get();
       setState(() {
-        _suppliers = Map.fromIterable(
-          querySnapshot.docs,
-          key: (doc) => doc['name'] as String,
-          value: (doc) => doc['department'] as String,
-        );
+        _suppliers = { for (var doc in querySnapshot.docs) doc['name'] as String : doc['department'] as String };
       });
     } catch (e) {
       print('Error fetching suppliers: $e');

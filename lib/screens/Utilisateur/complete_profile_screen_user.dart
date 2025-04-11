@@ -6,7 +6,7 @@ import '../../services/activity_service.dart';
 import '../../models/activity.dart';
 
 class ProfileCompletionScreen extends StatefulWidget {
-  ProfileCompletionScreen({Key? key}) : super(key: key);
+  const ProfileCompletionScreen({Key? key}) : super(key: key);
 
   @override
   _ProfileCompletionScreenState createState() =>
@@ -20,7 +20,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
   final TextEditingController _phoneController = TextEditingController();
   String _selectedLocation = '';
 
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   final List<String> _location = [
     'Accueil',
@@ -160,7 +160,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Nom de l\'employé ou entreprise',
                       border: OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.person),
+                      prefixIcon: Icon(Icons.person),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -177,7 +177,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Email',
                       border: OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.email),
+                      prefixIcon: Icon(Icons.email),
                     ),
                     enabled: false, // Non modifiable
                   ),
@@ -189,7 +189,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Numéro de téléphone',
                       border: OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.phone),
+                      prefixIcon: Icon(Icons.phone),
                     ),
                     keyboardType: TextInputType.phone,
                     validator: (value) {
@@ -207,7 +207,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Localisation',
                       border: OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.location_pin),
+                      prefixIcon: Icon(Icons.location_pin),
                     ),
                     value: _selectedLocation.isEmpty ? null : _selectedLocation,
                     hint: const Text('Sélectionnez votre localisation'),

@@ -6,7 +6,7 @@ import '../../services/activity_service.dart';
 import '../../models/activity.dart';
 
 class ProfileCompletionScreen extends StatefulWidget {
-  ProfileCompletionScreen({Key? key}) : super(key: key);
+  const ProfileCompletionScreen({Key? key}) : super(key: key);
 
   @override
   _ProfileCompletionScreenState createState() =>
@@ -580,7 +580,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Nom de l\'employé ou entreprise',
                       border: OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.person),
+                      prefixIcon: Icon(Icons.person),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -597,7 +597,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Email',
                       border: OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.email),
+                      prefixIcon: Icon(Icons.email),
                     ),
                     enabled: false, // Non modifiable
                   ),
@@ -609,7 +609,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Numéro de téléphone',
                       border: OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.phone),
+                      prefixIcon: Icon(Icons.phone),
                     ),
                     keyboardType: TextInputType.phone,
                     validator: (value) {
@@ -626,7 +626,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Département',
                       border: OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.business),
+                      prefixIcon: Icon(Icons.business),
                     ),
                     value: _selectedDepartment.isEmpty
                         ? null
@@ -658,7 +658,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Fonction',
                       border: OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.work_outline),
+                      prefixIcon: Icon(Icons.work_outline),
                     ),
                     value: _selectedFunction.isEmpty ? null : _selectedFunction,
                     hint: const Text('Sélectionnez votre fonction'),
@@ -687,7 +687,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Localisation',
                       border: OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.location_pin),
+                      prefixIcon: Icon(Icons.location_pin),
                     ),
                     value: _selectedLocation.isEmpty ? null : _selectedLocation,
                     hint: const Text('Sélectionnez votre localisation'),

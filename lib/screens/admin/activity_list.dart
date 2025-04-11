@@ -292,11 +292,7 @@ class _ActivityListState extends State<ActivityList>
     final Map<String, List<Activity>> groupedActivities = {};
     for (var activity in filteredActivities) {
       // AJOUT: Vérification de la validité de timestamp
-       if (activity.timestamp == null) {
-           print("Activité avec timestamp null ignorée: ${activity.id}");
-           continue; // Skip this activity
-       }
-      final dateKey = DateFormat('dd/MM/yyyy').format(activity.timestamp!); // Utiliser ! après vérification
+       final dateKey = DateFormat('dd/MM/yyyy').format(activity.timestamp); // Utiliser ! après vérification
       if (!groupedActivities.containsKey(dateKey)) {
         groupedActivities[dateKey] = [];
       }
@@ -333,8 +329,7 @@ class _ActivityListState extends State<ActivityList>
 
             // Trier les activités par heure (code inchangé, ajouté ! après vérif timestamp)
              activitiesForDate.sort((a, b) {
-                if (a.timestamp == null || b.timestamp == null) return 0;
-                return b.timestamp!.compareTo(a.timestamp!);
+                return b.timestamp.compareTo(a.timestamp);
              });
 
 
@@ -393,10 +388,8 @@ class _ActivityListState extends State<ActivityList>
 
     String formattedTime = '--:--';
     try {
-      if (activity.timestamp != null) {
-        formattedTime = DateFormat('HH:mm').format(activity.timestamp!);
-      }
-    } catch (e) {
+      formattedTime = DateFormat('HH:mm').format(activity.timestamp);
+        } catch (e) {
       print('Erreur de formatage de l\'heure: $e');
     }
 
@@ -827,8 +820,7 @@ class _ActivityListState extends State<ActivityList>
       setState(() {
         // Trier immédiatement après le chargement pour assurer l'ordre initial
          _activities = activities..sort((a, b) {
-             if (a.timestamp == null || b.timestamp == null) return 0;
-             return b.timestamp!.compareTo(a.timestamp!); // Plus récent en premier
+             return b.timestamp.compareTo(a.timestamp); // Plus récent en premier
          });
         _isLoading = false;
       });

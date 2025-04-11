@@ -24,7 +24,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     const EmployeeList(),
     const TaskList(),
     const ActivityList(),
-    ReportsListScreen(),
+    const ReportsListScreen(),
   ];
 
   final List<String> _titles = [

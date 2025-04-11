@@ -114,7 +114,7 @@ Future<void> _confirmLogout(BuildContext context) async {
             ),
           ),
           appBar: AppBar(
-            title: Text("Bienvenue ${employeeName}"),
+            title: Text("Bienvenue $employeeName"),
             leading: IconButton(
               icon: const Icon(Icons.menu, color: Color.fromARGB(221, 255, 255, 255)),
               onPressed: () {

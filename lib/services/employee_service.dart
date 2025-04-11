@@ -72,7 +72,7 @@ class EmployeeService {
         Activity(
           id: '',
           activityType: ActivityType.employeeDeleted.value,
-          description: 'Suppression de l\'employé "${employeeName}"',
+          description: 'Suppression de l\'employé "$employeeName"',
           performedBy: performedBy,
           timestamp: DateTime.now(),
           targetId: employeeId,

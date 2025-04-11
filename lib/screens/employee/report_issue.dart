@@ -18,7 +18,7 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
   String? _selectedIssueType;
   String? _selectedActionType;
   late String _selectedLocation;
-  String? _selectedEtat = AppConstants.etat.first;
+  final String? _selectedEtat = AppConstants.etat.first;
 
   @override
   void initState() {

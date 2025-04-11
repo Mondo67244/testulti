@@ -212,11 +212,11 @@ class MyApp extends StatelessWidget {
           AppConstants.routeCommandes: (context) => const AdminOrdersList(),
           //AppConstants.routeStockfournisseur: (context) => const,
           //AppConstants.routeFormulaireFournisseur: (context) => const,
-          AppConstants.routeReportList: (context) => ReportsListScreen(),
+          AppConstants.routeReportList: (context) => const ReportsListScreen(),
           AppConstants.routeFournisseurDashboard: (context) =>
               const FournisseurDashboard(),
           AppConstants.routeEquipmentList: (context) => const EquipmentList(),
-          AppConstants.routeLocations: (context) => LocationsScreen(),
+          AppConstants.routeLocations: (context) => const LocationsScreen(),
           AppConstants.routeAllUserInfos: (context) =>
               const ProfilUtilisateur(),
           AppConstants.routeUtilisateurDashboard: (context) =>

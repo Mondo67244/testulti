@@ -17,7 +17,7 @@ class EquipmentDetails extends StatefulWidget {
 }
 
 class _EquipmentDetailsState extends State<EquipmentDetails> {
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {

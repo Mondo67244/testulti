@@ -534,9 +534,9 @@ class _TaskListState extends State<TaskList> with SingleTickerProviderStateMixin
 // Helper extension for capitalizing strings (optional, but nice for status text)
 extension StringExtension on String {
     String capitalize() {
-      if (this.isEmpty) {
+      if (isEmpty) {
         return "";
       }
-      return "${this[0].toUpperCase()}${this.substring(1).toLowerCase()}";
+      return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
     }
 }

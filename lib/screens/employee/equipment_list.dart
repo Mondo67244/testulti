@@ -143,9 +143,9 @@ class _EquipmentListState extends State<EquipmentList>
               unselectedLabelColor: Colors.grey,
               indicatorColor: Theme.of(context).primaryColor,
               indicatorWeight: 2,
-              labelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-              unselectedLabelStyle: TextStyle(fontSize: 12),
-              labelPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              unselectedLabelStyle: const TextStyle(fontSize: 12),
+              labelPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               tabs: [
                 const Tab(text: 'Tout'),
                 ...AppConstants.equipmentCategories
@@ -177,7 +177,7 @@ class _EquipmentListState extends State<EquipmentList>
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Rechercher un équipement...',
-                hintStyle: TextStyle(fontSize: 15),
+                hintStyle: const TextStyle(fontSize: 15),
                 prefixIcon: const Icon(Icons.search, size: 22),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -195,11 +195,11 @@ class _EquipmentListState extends State<EquipmentList>
                   borderSide: BorderSide(width: 1, color: Colors.grey.shade300),
                 ),
                 contentPadding:
-                    EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                 filled: true,
                 fillColor: Colors.grey.shade100,
               ),
-              style: TextStyle(fontSize: 15),
+              style: const TextStyle(fontSize: 15),
               onChanged: (value) {
                 setState(() {
                   _searchQuery = value;
@@ -321,7 +321,7 @@ class _EquipmentListState extends State<EquipmentList>
           children: [
             Expanded(
               child: Text(
-                equipment.type + ' ' + equipment.name,
+                '${equipment.type} ${equipment.name}',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,

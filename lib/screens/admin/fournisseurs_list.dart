@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gestion_parc_informatique/screens/admin/admin_dashboard.dart';
 
 class FournisseursList extends StatefulWidget {
+  const FournisseursList({super.key});
+
   @override
   _FournisseursListState createState() => _FournisseursListState();
 }

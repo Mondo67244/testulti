@@ -128,7 +128,7 @@ class _UtilisateurDashboardState extends State<UtilisateurDashboard> {
                   ),
                   ListTile(
               leading: const Icon(Icons.assignment),
-              title: const Text('Mes rapports faits'),
+              title: const Text('Mes signalements faits'),
               onTap: () {
                 _onItemTapped(0);
                 Navigator.pop(context);
@@ -173,7 +173,7 @@ class _UtilisateurDashboardState extends State<UtilisateurDashboard> {
               items: const <BottomNavigationBarItem>[
                 BottomNavigationBarItem(
                   icon: Icon(Icons.assignment),
-                  label: 'Mes rapports',
+                  label: 'Mes signalements',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.list),

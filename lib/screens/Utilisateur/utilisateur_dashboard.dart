@@ -198,6 +198,9 @@ class MesRapports extends StatefulWidget {
 }
 
 class _MesRapportsState extends State<MesRapports> {
+  final double tabletBreakpoint = 600.0;
+  final double maxContentWidth = 700.0;
+
   @override
   Widget build(BuildContext context) {
     const role = 'Utilisateur';
@@ -219,10 +222,25 @@ class _MesRapportsState extends State<MesRapports> {
         }
 
         if (snapshot.data?.docs.isEmpty ?? true) {
-          return const Center(child: Text('Aucun rapport disponible.'));
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.report_off_outlined, size: 60, color: Colors.grey),
+                SizedBox(height: 16),
+                Text(
+                  'Aucun signalement disponible',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ],
+            ),
+          );
         }
-        
-        return ListView(
+
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth < tabletBreakpoint) {
+              return ListView(
           children: snapshot.data!.docs.map((DocumentSnapshot document) {
             Map<String, dynamic> data =
                 document.data()! as Map<String, dynamic>;
@@ -242,57 +260,248 @@ class _MesRapportsState extends State<MesRapports> {
             }
 
             return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              child: ListTile(
-                contentPadding: const EdgeInsets.all(10),
-                title: Column(
-                  children: [
-                    const Text('Signalement fait sur l\'équipement: ',style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(type+' '+equipmentName,style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.deepPurple)),
-                  ],
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      const Icon(Icons.computer,color: Colors.black87),
-                      const SizedBox(width: 5,),
-                      Text('Type d\'appareil: ',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.grey[600]),),
-                      Text(type,style: const TextStyle(fontWeight: FontWeight.bold,color:Color.fromARGB(186, 104, 58, 183))),
-                    ]
+                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 24,
+                            backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                            child: const Icon(Icons.report_outlined, color: Colors.deepPurple),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  type + ' ' + equipmentName,
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  dateFormatted,
+                                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    Row(children: [
-                      const Icon(Icons.location_on,color: Colors.black87),
-                      const SizedBox(width: 5,),
-                     Text('Lieu d\'envoi: ',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.grey[600])),
-                      Text(location,style: const TextStyle(color: Color.fromARGB(186, 76, 175, 79),fontWeight: FontWeight.bold),)
-                    ],)
-                      ,
-                    Row(children: [
-                      const Icon(Icons.calendar_month,color: Colors.black87),
-                      const SizedBox(width: 5,),
-                      Text('Date d\'envoi: ',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.grey[600])),
-                      Text(dateFormatted)
-                    ]),
-                    Row(children: [
-                      const Icon(Icons.description,color: Colors.black87),
-                      const SizedBox(width: 5,),
-                      Text('Message Envoyé: ',maxLines: 3,style: TextStyle(fontWeight: FontWeight.bold,color: Colors.grey[600])),
-                      Text('" $description "')
-                    ]),
-                    Row(children: [
-                      const Icon(Icons.person,color: Colors.black87),
-                      const SizedBox(width: 5,),
-                      Text('Signalé par : ',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.grey[600])),
-                      Text(reportedBy,style: const TextStyle(fontWeight: FontWeight.bold,color: Color.fromARGB(186, 244, 67, 54)),)
-                    ]),
-                  ],
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.computer, size: 16, color: Colors.grey[700]),
+                                const SizedBox(width: 8),
+                                Text('Type: ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[700])),
+                                Text(type, style: const TextStyle(color: Colors.deepPurple)),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(Icons.location_on, size: 16, color: Colors.grey[700]),
+                                const SizedBox(width: 8),
+                                Text('Lieu: ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[700])),
+                                Expanded(
+                                  child: Text(
+                                    location,
+                                    style: const TextStyle(color: Color.fromARGB(186, 76, 175, 79)),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(Icons.description, size: 16, color: Colors.grey[700]),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    description,
+                                    style: const TextStyle(fontSize: 13),
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Icon(Icons.person, size: 16, color: Colors.grey[600]),
+                          const SizedBox(width: 4),
+                          Text(
+                            reportedBy,
+                            style: const TextStyle(color: Color.fromARGB(186, 244, 67, 54), fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                onTap: () {
-                },
-              ),
-            );
+              );
           }).toList(),
+              );
+            } else {
+              return GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 450,
+                  mainAxisExtent: 280,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  Map<String, dynamic> data =
+                      snapshot.data!.docs[index].data() as Map<String, dynamic>;
+
+                  String equipmentName =
+                      data['equipmentName'] ?? 'Équipement inconnu';
+                  String reportedBy = data['reportedBy'] ?? 'Utilisateur inconnu';
+                  String location = data['location'] ?? 'Utilisateur inconnu';
+                  String type = data['type'] ?? ' inconnue';
+                  String description =
+                      data['description'] ?? 'Aucune description disponible';
+                  String dateFormatted = 'Date inconnue';
+
+                  if (data['timestamp'] != null && data['timestamp'] is Timestamp) {
+                    dateFormatted = DateFormat('dd/MM/yyyy HH:mm')
+                        .format(data['timestamp'].toDate());
+                  }
+
+                  return Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 24,
+                                backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                                child: const Icon(Icons.report_outlined, color: Colors.deepPurple),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      type + ' ' + equipmentName,
+                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      dateFormatted,
+                                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.computer, size: 16, color: Colors.grey[700]),
+                                    const SizedBox(width: 8),
+                                    Text('Type: ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[700])),
+                                    Text(type, style: const TextStyle(color: Colors.deepPurple)),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Icon(Icons.location_on, size: 16, color: Colors.grey[700]),
+                                    const SizedBox(width: 8),
+                                    Text('Lieu: ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[700])),
+                                    Expanded(
+                                      child: Text(
+                                        location,
+                                        style: const TextStyle(color: Color.fromARGB(186, 76, 175, 79)),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(Icons.description, size: 16, color: Colors.grey[700]),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        description,
+                                        style: const TextStyle(fontSize: 13),
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Spacer(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Icon(Icons.person, size: 16, color: Colors.grey[600]),
+                              const SizedBox(width: 4),
+                              Text(
+                                reportedBy,
+                                style: const TextStyle(color: Color.fromARGB(186, 244, 67, 54), fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+          },
         );
       },
     );

@@ -35,40 +35,40 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAmUuUNCuhmq8tZFxoN0GNBzPnV4iP7qgo',
-    appId: '1:888572217070:web:2e8674407ca9e7e98955ff',
-    messagingSenderId: '888572217070',
-    projectId: 'mondodev2',
-    authDomain: 'mondodev2.firebaseapp.com',
-    storageBucket: 'mondodev2.firebasestorage.app',
-    measurementId: 'G-NPVNGNMQMJ',
+    apiKey: 'AIzaSyAvw6dxgP5Oju-54j0x3GUVyV2QsX-zuzU',
+    appId: '1:564591051312:web:f033ca142c9b74094a23f5',
+    messagingSenderId: '564591051312',
+    projectId: 'gestion-parc-informatiqu-c7d69',
+    authDomain: 'gestion-parc-informatiqu-c7d69.firebaseapp.com',
+    storageBucket: 'gestion-parc-informatiqu-c7d69.firebasestorage.app',
+    measurementId: 'G-HYP9PCHSGZ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCpPPjrNffXTRwEmOf-goojdWi4yJVkXIw',
-    appId: '1:888572217070:android:1c3179556fd7c7118955ff',
-    messagingSenderId: '888572217070',
-    projectId: 'mondodev2',
-    storageBucket: 'mondodev2.firebasestorage.app',
+    apiKey: 'AIzaSyAbcNH-qQ2HOB0Pim_6QhIRqnVaRpQcUcA',
+    appId: '1:564591051312:android:399a95613ecc1c084a23f5',
+    messagingSenderId: '564591051312',
+    projectId: 'gestion-parc-informatiqu-c7d69',
+    storageBucket: 'gestion-parc-informatiqu-c7d69.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyD_0471Kfwp61lHaTSS93b9exmyl3UV7W0',
-    appId: '1:888572217070:ios:944db68629c8408c8955ff',
-    messagingSenderId: '888572217070',
-    projectId: 'mondodev2',
-    storageBucket: 'mondodev2.firebasestorage.app',
+    apiKey: 'AIzaSyCCPr1pwaLIsbipNP1NjLNHhdzcjAsN-2k',
+    appId: '1:564591051312:ios:291782065fedfcd64a23f5',
+    messagingSenderId: '564591051312',
+    projectId: 'gestion-parc-informatiqu-c7d69',
+    storageBucket: 'gestion-parc-informatiqu-c7d69.firebasestorage.app',
     iosBundleId: 'com.mondo.dev.testulti',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAmUuUNCuhmq8tZFxoN0GNBzPnV4iP7qgo',
-    appId: '1:888572217070:web:8c8dbc2a8862ef288955ff',
-    messagingSenderId: '888572217070',
-    projectId: 'mondodev2',
-    authDomain: 'mondodev2.firebaseapp.com',
-    storageBucket: 'mondodev2.firebasestorage.app',
-    measurementId: 'G-QDNQP0Z3HV',
+    apiKey: 'AIzaSyAvw6dxgP5Oju-54j0x3GUVyV2QsX-zuzU',
+    appId: '1:564591051312:web:fcbb296d471976e64a23f5',
+    messagingSenderId: '564591051312',
+    projectId: 'gestion-parc-informatiqu-c7d69',
+    authDomain: 'gestion-parc-informatiqu-c7d69.firebaseapp.com',
+    storageBucket: 'gestion-parc-informatiqu-c7d69.firebasestorage.app',
+    measurementId: 'G-K5JTR3RPQB',
   );
 
 }

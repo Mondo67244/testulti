@@ -72,6 +72,23 @@ class _EquipmentFormState extends State<EquipmentForm> {
       _modelController.text = widget.initialData!['model']?.toString() ?? '';
       _selectedType = widget.initialData!['type']?.toString() ?? AppConstants.materials.first;
       _fabricants = widget.initialData!['manufacturer']?.toString() ?? AppConstants.fabricants.first;
+      _selectedCategory = widget.initialData!['category']?.toString() ?? AppConstants.equipmentCategories.first;
+      _selectedState = widget.initialData!['state']?.toString() ?? AppConstants.equipmentStates.first;
+      _selectedLocation = widget.initialData!['location']?.toString();
+      _responsibleDepartmentController.text = widget.initialData!['responsibleDepartment']?.toString() ?? '';
+      
+      // Gérer les dates
+      if (widget.initialData!['purchaseDate'] != null) {
+        _purchaseDate = (widget.initialData!['purchaseDate'] as Timestamp).toDate();
+      }
+      if (widget.initialData!['installationDate'] != null) {
+        _installationDate = (widget.initialData!['installationDate'] as Timestamp).toDate();
+      }
+
+      // Gérer le fournisseur
+      if (widget.isFromSupplierStock) {
+        _selectedSupplier = widget.initialData!['supplier']?.toString();
+      }
     }
   }
 
@@ -427,7 +444,7 @@ class _EquipmentFormState extends State<EquipmentForm> {
                                 child: Text(supplier),
                               ))
                           .toList(),
-                      onChanged: (value) {
+                      onChanged: widget.isFromSupplierStock ? null : (value) {
                         setState(() {
                           _selectedSupplier = value;
                           if (value != null) {
@@ -449,14 +466,15 @@ class _EquipmentFormState extends State<EquipmentForm> {
                     TextFormField(
                       controller: _responsibleDepartmentController,
                       decoration: const InputDecoration(
-                        labelText: 'Département responsable *',
+                        labelText: 'Département du fournisseur*',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.business),
                       ),
-                      readOnly: _selectedSupplier != null,
+                      readOnly: _selectedSupplier != null || widget.isFromSupplierStock,
+                      enabled: !widget.isFromSupplierStock,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer un département responsable';
+                          return 'Veuillez entrer un département du fournisseur';
                         }
                         return null;
                       },

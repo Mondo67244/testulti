@@ -23,7 +23,14 @@ class Equipment {
 }
 
 class EquipmentForm extends StatefulWidget {
-  const EquipmentForm({Key? key}) : super(key: key);
+  final bool isFromSupplierStock;
+  final String? supplierName;
+
+  const EquipmentForm({
+    Key? key,
+    this.isFromSupplierStock = false,
+    this.supplierName,
+  }) : super(key: key);
 
   @override
   State<EquipmentForm> createState() => _EquipmentFormState();
@@ -196,27 +203,37 @@ class _EquipmentFormState extends State<EquipmentForm> {
       const SizedBox(height: 16),
 
       // Fabriquants
-      DropdownButtonFormField<String>(
-        value: _fabricants,
-        decoration: const InputDecoration(
-          labelText: 'Fabricant *',
-          border: OutlineInputBorder(),
-          prefixIcon: Icon(Icons.maps_home_work_outlined),
-        ),
-        items: AppConstants.fabricants
-            .map((fabricants) => DropdownMenuItem(
-                  value: fabricants,
-                  child: Text(fabricants),
-                ))
-            .toList(),
-        onChanged: (value) {
-          if (value != null) {
-            setState(() {
-              _fabricants = value;
-            });
-          }
-        },
-      ),
+      widget.isFromSupplierStock && widget.supplierName != null
+          ? TextFormField(
+              initialValue: widget.supplierName,
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'Fabricant *',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.maps_home_work_outlined),
+              ),
+            )
+          : DropdownButtonFormField<String>(
+              value: _fabricants,
+              decoration: const InputDecoration(
+                labelText: 'Fabricant *',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.maps_home_work_outlined),
+              ),
+              items: AppConstants.fabricants
+                  .map((fabricants) => DropdownMenuItem(
+                        value: fabricants,
+                        child: Text(fabricants),
+                      ))
+                  .toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _fabricants = value;
+                  });
+                }
+              },
+            ),
       const SizedBox(height: 16),
 
       // Modèle

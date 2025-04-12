@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'commandes_recentes.dart'; // Importer le fichier pour les commandes administratives
-import 'commandes_livrées.dart'; // Importer le fichier pour les commandes du fournisseur
+import 'commandes_livrees.dart'; // Importer le fichier pour les commandes du fournisseur
 import 'equipment_form_fournisseur.dart';
 import 'stock_list.dart';
 import 'package:provider/provider.dart';

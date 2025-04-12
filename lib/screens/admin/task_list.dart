@@ -151,25 +151,73 @@ class _TaskListState extends State<TaskList>
             child: StreamBuilder<List<MaintenanceTask>>(
               stream: taskService.getTasks(),
               builder: (context, snapshot) {
+                // Vérification des erreurs de chargement
                 if (snapshot.hasError) {
+                  print('Erreur de chargement: ${snapshot.error}');
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline,
-                            size: 48, color: Colors.red),
+                        const Icon(Icons.error_outline, size: 48, color: Colors.red),
                         const SizedBox(height: 16),
-                        Text('Erreur: ${snapshot.error}'),
+                        Text(
+                          'Erreur lors du chargement des tâches:\n${snapshot.error}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 16,
+                          ),
+                        ),
                       ],
                     ),
                   );
                 }
 
+                // Vérification si les données sont en cours de chargement
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
+                // Vérification si la liste est vide
                 final allTasks = snapshot.data!;
+                if (allTasks.isEmpty) {
+                  return const Center(
+                    child: Text('Aucune tâche disponible',
+                        style: TextStyle(fontSize: 18, color: Colors.grey)),
+                  );
+                }
+              
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline,
+                              size: 48, color: Colors.red),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Erreur lors du chargement des tâches:\n${snapshot.error}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: () => setState(() {}),
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Réessayer'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
 
                 // Filtrer par statut
                 final List<MaintenanceTask> statusFilteredTasks;
@@ -240,7 +288,7 @@ class _TaskListState extends State<TaskList>
                 );
               },
             );
-  },),
+          }),
       )],
               ),
             );
@@ -251,8 +299,15 @@ class _TaskListState extends State<TaskList>
   }
 
   Widget _buildTaskCard(MaintenanceTask task) {
+    // Vérification des valeurs null et initialisation des valeurs par défaut
+    final String safeTitle = task.title ?? 'Sans titre';
+    final String safeDescription = task.description ?? 'Aucune description';
+    final String safeAssignedTo = task.assignedTo ?? 'Non assigné';
+    final String safeStatus = task.status ?? 'En attente';
+    final DateTime safeDueDate = task.dueDate ?? DateTime.now();
+    
     final statusColor =
-        AppConstants.taskStatusColors[task.status] ?? Colors.grey;
+        AppConstants.taskStatusColors[safeStatus] ?? Colors.grey;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       elevation: 3,
@@ -273,7 +328,7 @@ class _TaskListState extends State<TaskList>
               children: [
                 Expanded(
                   child: Text(
-                    task.title,
+                    safeTitle,
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -294,7 +349,7 @@ class _TaskListState extends State<TaskList>
                     ),
                   ),
                   child: Text(
-                    AppConstants.taskStatuses[task.status] ?? task.status,
+                    AppConstants.taskStatuses[safeStatus] ?? safeStatus,
                     style: TextStyle(
                       color: statusColor,
                       fontWeight: FontWeight.bold,
@@ -331,10 +386,62 @@ class _TaskListState extends State<TaskList>
                     );
 
                     if (confirmed == true) {
-                      final taskService =
-                          Provider.of<MaintenanceTaskService>(context,
-                              listen: false);
-                      await taskService.deleteTask(task.id, 'Admin');
+                      try {
+                        final taskService =
+                            Provider.of<MaintenanceTaskService>(context,
+                                listen: false);
+                        await taskService.deleteTask(task.id, 'Admin');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Tâche supprimée avec succès'),
+                            backgroundColor: Colors.green,
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Erreur lors de la suppression de la tâche:\n${e.toString()}',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Colors.red,
+                            duration: const Duration(seconds: 4),
+                            action: SnackBarAction(
+                              label: 'Réessayer',
+                              textColor: Colors.white,
+                              onPressed: () async {
+                                try {
+                                  final taskService =
+                                      Provider.of<MaintenanceTaskService>(
+                                          context,
+                                          listen: false);
+                                  await taskService.deleteTask(task.id, 'Admin');
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content:
+                                            Text('Tâche supprimée avec succès'),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  }
+                                } catch (retryError) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            'Échec de la nouvelle tentative: ${retryError.toString()}'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                            ),
+                          ),
+                        );
+                      }
                     }
                   },
                 ),
@@ -342,7 +449,7 @@ class _TaskListState extends State<TaskList>
             ),
             const SizedBox(height: 8),
             Text(
-              task.description,
+              safeDescription,
               style: TextStyle(
                 fontSize: 13,
                 color: Colors.grey[700],
@@ -360,7 +467,7 @@ class _TaskListState extends State<TaskList>
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'Échéance: ${DateFormat('dd/MM/yyyy').format(task.dueDate)}',
+                  'Échéance: ${DateFormat('dd/MM/yyyy').format(safeDueDate)}',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey[700],
@@ -385,7 +492,7 @@ class _TaskListState extends State<TaskList>
                   ),
                 ),
                 Text(
-                  task.assignedTo,
+                  safeAssignedTo,
                   style: const TextStyle(
                     fontSize: 12,
                     color: Color.fromARGB(255, 213, 47, 47),

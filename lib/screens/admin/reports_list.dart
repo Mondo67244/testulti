@@ -62,7 +62,7 @@ class _ReportsListScreenState extends State<ReportsListScreen>
 
   // Widget principal pour construire la liste (ListView ou GridView)
   Widget _buildReportList(String role) {
-    // print('Filtrage des rapports pour le rôle: $role'); // Keep for debugging if needed
+    print('Filtrage des rapports pour le rôle: $role'); // Activer le log pour le débogage
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('reports')
@@ -70,9 +70,28 @@ class _ReportsListScreenState extends State<ReportsListScreen>
           .orderBy('timestamp', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
+        try {
         if (snapshot.hasError) {
-          // print('Erreur lors de la récupération des rapports: ${snapshot.error}');
-          return const Center(child: Text('Une erreur est survenue'));
+          print('Erreur lors de la récupération des rapports: ${snapshot.error}');
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(
+                  'Erreur: ${snapshot.error}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.red),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => setState(() {}),
+                  child: const Text('Réessayer'),
+                ),
+              ],
+            ),
+          );
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -95,8 +114,22 @@ class _ReportsListScreenState extends State<ReportsListScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 itemCount: documents.length,
                 itemBuilder: (context, index) {
-                  final data = documents[index].data() as Map<String, dynamic>;
-                  return _buildCardForItem(role, data); // Appel fonction générique
+                  try {
+                    final data = documents[index].data() as Map<String, dynamic>;
+                    if (data == null) {
+                      print('Document $index est null');
+                      return const SizedBox.shrink();
+                    }
+                    return _buildCardForItem(role, data);
+                  } catch (e) {
+                    print('Erreur lors du traitement du document $index: $e');
+                    return const Card(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text('Erreur de chargement du rapport'),
+                      ),
+                    );
+                  }
                 },
               );
             }
@@ -118,8 +151,24 @@ class _ReportsListScreenState extends State<ReportsListScreen>
             }
           },
         );
-      },
-    );
+      } catch (e) {
+        print('Erreur générale lors de la construction de la liste: $e');
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const SizedBox(height: 16),
+              Text(
+                'Erreur: $e',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.red),
+              )
+            ]
+          )
+        );
+      }
+  });
   }
 
   Widget _buildCardForItem(String role, Map<String, dynamic> data) {
@@ -143,16 +192,26 @@ class _ReportsListScreenState extends State<ReportsListScreen>
       }
     }
 
-    // Appel du builder spécifique basé sur le rôle
-    switch (role) {
-      case 'Maintenancier':
-        return _buildMaintenancierReportCard(equipmentName, reportedBy, location, equipmentId, issueType, actionType, description, dateFormatted);
-      case 'Utilisateur':
-        return _buildUtilisateurReportCard(equipmentName, reportedBy, location, equipmentId, description, dateFormatted);
-      case 'Fournisseur':
-        return _buildFournisseurReportCard(equipmentName, reportedBy, description, dateFormatted);
-      default:
-        return const SizedBox.shrink(); // Ne rien afficher si rôle inconnu
+    try {
+      // Appel du builder spécifique basé sur le rôle
+      switch (role) {
+        case 'Maintenancier':
+          return _buildMaintenancierReportCard(equipmentName, reportedBy, location, equipmentId, issueType, actionType, description, dateFormatted);
+        case 'Utilisateur':
+          return _buildUtilisateurReportCard(equipmentName, reportedBy, location, equipmentId, description, dateFormatted);
+        case 'Fournisseur':
+          return _buildFournisseurReportCard(equipmentName, reportedBy, description, dateFormatted);
+        default:
+          return const SizedBox.shrink(); // Ne rien afficher si rôle inconnu
+      }
+    } catch (e) {
+      print("Erreur lors de la construction de la carte: $e");
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text('Erreur d\'affichage: $e'),
+        ),
+      );
     }
   }
 

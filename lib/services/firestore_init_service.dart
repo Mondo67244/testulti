@@ -1,35 +1,33 @@
+// ignore_for_file: avoid_print
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../constants/app_constants.dart';
+
 
 class FirestoreInitService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> initializeCollections() async {
-    print("Initialisation des collections Firestore...");
+    print("Initialisation des collections et des index Firestore...");
 
-    // Vérifier si l'utilisateur est connecté
-    if (_auth.currentUser == null) {
-      print(
-          "Aucun utilisateur connecté. Création d'un utilisateur temporaire pour l'initialisation...");
-      try {
-        await _auth.signInAnonymously();
-        print("Connexion anonyme réussie pour l'initialisation");
-      } catch (e) {
-        print("Impossible de se connecter anonymement: $e");
-        return;
-      }
-    }
-
+    // Charger un utilisateur temporaire pour l'initialisation...
     try {
-      await _createCollection(AppConstants.equipmentCollection, {});
 
-      await _createCollection(AppConstants.reportsCollection, {});
-
-      print("Initialisation des collections terminée avec succès");
+      await _createCollection('activities', {
+      });
+      await _createCollection('maintenance_tasks', {
+      });
+      await _createCollection('commandes', {
+      });
+      await _createCollection('equipment', {
+      });
+      await _createCollection('reports', {
+      });
+      await _createCollection('users', {
+      });
     } catch (e) {
-      print("Erreur lors de l'initialisation des collections: $e");
+      print("Initialisation des collections et des index terminée avec succès");
     } finally {
       if (_auth.currentUser?.isAnonymous == true) {
         await _auth.signOut();

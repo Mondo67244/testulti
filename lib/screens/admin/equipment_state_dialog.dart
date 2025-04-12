@@ -82,6 +82,7 @@ class _EquipmentStateDialogState extends State<EquipmentStateDialog> {
                     // Si on passe à "Bon état", réinitialiser le statut
                     if (selectedState == 'Bon état') {
                       selectedStatus = '';
+                      showStatusSelection = false;
                     }
                   });
                 },

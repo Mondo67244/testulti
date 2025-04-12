@@ -36,7 +36,8 @@ dev_dependencies:
 
 flutter:
   assets:
-    - assets/icons/app_icon.svg
+    - assets/fonts/
+    - assets/icons/
   fonts:
     - family: Lato
       fonts:

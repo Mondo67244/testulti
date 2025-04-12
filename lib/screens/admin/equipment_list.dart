@@ -415,7 +415,7 @@ class _EquipmentListState extends State<EquipmentList>
                                                                                   final equipmentData = equipment;
                                                                                   final stockId = equipmentId; // Use the fetched ID
 
-                                                                                  // Préparer les données pour le formulaire
+                                                                                  // Préparer les données pour le formulaire avec toutes les informations nécessaires
                                                                                   final formData = {
                                                                                     'name': equipment['name'],
                                                                                     'description': equipment['description'],
@@ -426,9 +426,12 @@ class _EquipmentListState extends State<EquipmentList>
                                                                                     'category': equipment['category'] ?? selectedType,
                                                                                     'state': 'Bon état',
                                                                                     'supplier': fournisseur['name'],
-                                                                                    'department': fournisseur['department'],
-                                                                                    'stockId': stockId, // Ajouter l'ID du stock pour référence
-                                                                                    'equipmentData': equipmentData // Ajouter les données complètes
+                                                                                    'stockId': stockId,
+                                                                                    'equipmentData': equipmentData,
+                                                                                    'location': equipment['location'],
+                                                                                    'purchaseDate': equipment['purchaseDate'],
+                                                                                    'installationDate': equipment['installationDate'],
+                                                                                    'responsibleDepartment': fournisseur['department']
                                                                                   };
 
                                                                                   Navigator.pop(context); // Fermer la boîte de dialogue du stock
@@ -666,7 +669,6 @@ class _EquipmentListState extends State<EquipmentList>
   }
 
   Widget _buildEquipmentCard(Equipment equipment) {
-    
     final stateColor = _getStateColor(equipment.state);
     final statusColor = _getStatusColor(equipment.status);
 
@@ -699,12 +701,16 @@ class _EquipmentListState extends State<EquipmentList>
                         ),
                         maxLines:
                             1, // Garder une seule ligne pour le titre dans la carte
-                        overflow: TextOverflow.ellipsis, // Tronquer si trop long
+                        overflow:
+                            TextOverflow.ellipsis, // Tronquer si trop long
                       ),
-                      Text(equipment.id,
-                      style: 
-                      const TextStyle(color: Color.fromARGB(180, 184, 53, 53),
-                      fontSize: 10,fontWeight: FontWeight.bold),),
+                      Text(
+                        equipment.id,
+                        style: const TextStyle(
+                            color: Color.fromARGB(180, 184, 53, 53),
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ],
                   ),
                 ),
@@ -717,6 +723,16 @@ class _EquipmentListState extends State<EquipmentList>
                     _handleMenuAction(value, equipment);
                   },
                   itemBuilder: (context) => [
+                    const PopupMenuItem<String>(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit, size: 18),
+                          SizedBox(width: 8),
+                          Text('Modifier', style: TextStyle(fontSize: 14)),
+                        ],
+                      ),
+                    ),
                     const PopupMenuItem<String>(
                       value: 'assign',
                       child: Row(
@@ -769,7 +785,7 @@ class _EquipmentListState extends State<EquipmentList>
               ),
             ],
             const SizedBox(height: 8),
-           
+
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -918,6 +934,9 @@ class _EquipmentListState extends State<EquipmentList>
         Provider.of<EquipmentService>(context, listen: false);
 
     switch (action) {
+      case 'edit':
+        _showEditConfirmation(context, equipment);
+        break;
       case 'assign':
         _showAssignDialog(context, equipment, equipmentService);
         break;
@@ -928,6 +947,37 @@ class _EquipmentListState extends State<EquipmentList>
         _confirmDelete(context, equipment, equipmentService);
         break;
     }
+  }
+
+  void _showEditConfirmation(BuildContext context, Equipment equipment) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Modifier l\'équipement'),
+          content: const Text('Voulez-vous vraiment modifier cet équipement ?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        EquipmentForm(initialData: equipment.toMap()),
+                  ),
+                );
+              },
+              child: const Text('Modifier'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showAssignDialog(

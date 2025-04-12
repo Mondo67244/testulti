@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "888572217070",
-    "project_id": "mondodev2",
-    "storage_bucket": "mondodev2.firebasestorage.app"
+    "project_number": "564591051312",
+    "project_id": "gestion-parc-informatiqu-c7d69",
+    "storage_bucket": "gestion-parc-informatiqu-c7d69.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:888572217070:android:1c3179556fd7c7118955ff",
+        "mobilesdk_app_id": "1:564591051312:android:399a95613ecc1c084a23f5",
         "android_client_info": {
-          "package_name": "com.mondo.dev.testulti"
+          "package_name": "com.mondo.gpi"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCpPPjrNffXTRwEmOf-goojdWi4yJVkXIw"
+          "current_key": "AIzaSyAbcNH-qQ2HOB0Pim_6QhIRqnVaRpQcUcA"
         }
       ],
       "services": {

@@ -87,7 +87,23 @@
         { "fieldPath": "createdBy", "order": "ASCENDING" },
         { "fieldPath": "date", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "reports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "reportedByRole", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "commandelivr",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "fournisseurId", "order": "ASCENDING" },
+        { "fieldPath": "dateReception", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
-} 
+}

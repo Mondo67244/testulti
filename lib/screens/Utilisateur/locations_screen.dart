@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -339,28 +341,6 @@ class _LocationsScreenState extends State<LocationsScreen> {
   }
 
    // Helper pour construire une ligne de détail (déplacé ici pour être utilisé aussi dans le dialog)
-   Widget _buildDetailRow(IconData icon, String label, String value, {TextStyle? valueStyle}) {
-     return Padding(
-       padding: const EdgeInsets.symmetric(vertical: 3.0),
-       child: Row(
-         crossAxisAlignment: CrossAxisAlignment.start,
-         children: [
-           Icon(icon, size: 16, color: Colors.grey.shade700),
-           const SizedBox(width: 6),
-           Text(
-             '$label: ',
-             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-           ),
-           Flexible( // Important
-             child: Text(
-               value.isNotEmpty ? value : '-',
-               style: valueStyle ?? const TextStyle(fontSize: 12, color: Colors.black87),
-             ),
-           ),
-         ],
-       ),
-     );
-   }
 }
 
 // --- Equipment Card Widget ---

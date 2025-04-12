@@ -72,6 +72,31 @@ class Equipment {
     this.specifications = const {},
   });
 
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'serialNumber': serialNumber,
+      'category': category,
+      'type': type,
+      'location': location,
+      'status': status,
+      'state': state,
+      'manufacturer': manufacturer,
+      'model': model,
+      'supplier': supplier,
+      'responsibleDepartment': responsibleDepartment,
+      'purchaseDate': purchaseDate.toIso8601String(),
+      'installationDate': installationDate.toIso8601String(),
+      'lastMaintenanceDate': lastMaintenanceDate?.toIso8601String(),
+      'nextMaintenanceDate': nextMaintenanceDate?.toIso8601String(),
+      'errorHistory': errorHistory.map((e) => e.toJson()).toList(),
+      'maintenanceHistory': maintenanceHistory.map((e) => e.toJson()).toList(),
+      'specifications': specifications,
+    };
+  }
+
   factory Equipment.fromJson(Map<String, dynamic> json) {
     try {
       print('Conversion JSON en Equipment: ${json.toString()}');

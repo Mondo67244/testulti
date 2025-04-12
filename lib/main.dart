@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:gestion_parc_informatique/screens/Fournisseur/equipment_form_fournisseur.dart';
+import 'package:gestion_parc_informatique/screens/Fournisseur/stock_list.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:gestion_parc_informatique/constants/app_constants.dart';
-import 'package:gestion_parc_informatique/screens/Fournisseur/commandes_livr%C3%A9es.dart';
+import 'package:gestion_parc_informatique/screens/Fournisseur/commandes_livrees.dart';
 import 'package:gestion_parc_informatique/screens/Fournisseur/commandes_recentes.dart';
 import 'package:gestion_parc_informatique/screens/Fournisseur/fournisseur_dashboard.dart';
 import 'package:gestion_parc_informatique/screens/Utilisateur/locations_screen.dart';
@@ -32,9 +34,13 @@ import 'package:gestion_parc_informatique/screens/Utilisateur/utilisateur_dashbo
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('fr_FR', null);
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  
+  // Check if Firebase is already initialized to prevent duplicate initialization
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
 
   final user = FirebaseAuth.instance.currentUser;
   if (user != null) {
@@ -207,11 +213,11 @@ class MyApp extends StatelessWidget {
               const EmployeeDashboard(),
           AppConstants.routeEmployeeList: (context) => const EmployeeList(),
           AppConstants.routeCompleteProfile: (context) =>
-              ProfileCompletionScreen(),
+              const ProfileCompletionScreen(),
           AppConstants.routeCommandesLivrees: (context) => const SupplierOrdersList(),
           AppConstants.routeCommandes: (context) => const AdminOrdersList(),
-          //AppConstants.routeStockfournisseur: (context) => const,
-          //AppConstants.routeFormulaireFournisseur: (context) => const,
+          AppConstants.routeStockfournisseur: (context) => const StockList(),
+          AppConstants.routeFormulaireFournisseur: (context) => const EquipmentForm(),
           AppConstants.routeReportList: (context) => const ReportsListScreen(),
           AppConstants.routeFournisseurDashboard: (context) =>
               const FournisseurDashboard(),
@@ -222,7 +228,7 @@ class MyApp extends StatelessWidget {
           AppConstants.routeUtilisateurDashboard: (context) =>
               UtilisateurDashboard(
                   userId: FirebaseAuth.instance.currentUser!.uid),
-          AppConstants.routeFournisseurs: (context) => FournisseursList(),
+          AppConstants.routeFournisseurs: (context) => const FournisseursList(),
         },
         onUnknownRoute: (settings) {
           return MaterialPageRoute(builder: (context) => const LoginScreen());
@@ -261,7 +267,7 @@ class HomeScreen extends StatelessWidget {
                     role == AppConstants.roleSupplier ||
                     role == AppConstants.roleUtilisateur) &&
                 !isProfileComplete) {
-              return ProfileCompletionScreen();
+              return const ProfileCompletionScreen();
             } else if (role == AppConstants.roleAdmin) {
               return const AdminDashboard();
             } else if (role == AppConstants.roleSupplier) {

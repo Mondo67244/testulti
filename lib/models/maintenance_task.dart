@@ -31,20 +31,23 @@ class MaintenanceTask {
   factory MaintenanceTask.fromMap(Map<String, dynamic> map, String id) {
     return MaintenanceTask(
       id: id,
-      title: map['title'] as String,
-      description: map['description'] as String,
-      equipmentId: map['equipmentId'] as String,
-      assignedTo: map['assignedTo'] as String,
-      status: map['status'] as String,
-      type: map['type'] as String,
-      dueDate: (map['dueDate'] as Timestamp).toDate(),
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      title: map['title']?.toString() ?? 'Sans titre',
+      description: map['description']?.toString() ?? 'Aucune description',
+      equipmentId: map['equipmentId']?.toString() ?? '',
+      assignedTo: map['assignedTo']?.toString() ?? 'Non assigné',
+      status: map['status']?.toString() ?? 'En attente',
+      type: map['type']?.toString() ?? 'Standard',
+      dueDate: map['dueDate'] != null
+          ? (map['dueDate'] as Timestamp).toDate()
+          : DateTime.now(),
+      createdAt: map['createdAt'] != null
+          ? (map['createdAt'] as Timestamp).toDate()
+          : DateTime.now(),
       completionDate: map['completionDate'] != null
           ? (map['completionDate'] as Timestamp).toDate()
           : null,
-      notes: map['notes'] as String?,
-    );
-  }
+      notes: map['notes']?.toString(),
+  );}
 
   Map<String, dynamic> toMap() {
     return {

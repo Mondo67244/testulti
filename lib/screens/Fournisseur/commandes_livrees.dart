@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -15,6 +16,7 @@ class SupplierOrdersList extends StatelessWidget {
         body: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('commandelivr')
+                .where('fournisseurId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
                 .orderBy('dateReception', descending: true)
                 .snapshots(),
             builder: (context, snapshot) {

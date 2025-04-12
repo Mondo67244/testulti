@@ -4,6 +4,7 @@ import 'package:gestion_parc_informatique/screens/admin/reports_list.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 import '../../constants/app_constants.dart';
+import '../../services/firestore_init_service.dart';
 import 'equipment_list.dart';
 import 'employee_list.dart';
 import 'task_list.dart';
@@ -42,12 +43,24 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final user = authService.currentUser;
+      
+      if (user == null) {
+        Navigator.pushReplacementNamed(context, AppConstants.routeLogin);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context, listen: false);
     final user = authService.currentUser;
-
+    
     if (user == null) {
-      Navigator.pushReplacementNamed(context, AppConstants.routeLogin);
       return const SizedBox.shrink();
     }
 
@@ -74,7 +87,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             ListTile(
               leading: const Icon(Icons.computer),
-              title: const Text('Équipements'),
+              title: const Text('Voir les équipements'),
               onTap: () {
                 _onItemTapped(0);
                 Navigator.pop(context);
@@ -82,7 +95,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             ListTile(
               leading: const Icon(Icons.people),
-              title: const Text('Employés'),
+              title: const Text('Ouvrir la liste des employés'),
               onTap: () {
                 _onItemTapped(1);
                 Navigator.pop(context);
@@ -90,7 +103,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             ListTile(
               leading: const Icon(Icons.assignment),
-              title: const Text('Tâches'),
+              title: const Text('Afficher les tâches'),
               onTap: () {
                 _onItemTapped(2);
                 Navigator.pop(context);
@@ -98,7 +111,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             ListTile(
               leading: const Icon(Icons.history),
-              title: const Text('Activités'),
+              title: const Text('Afficher les activités'),
               onTap: () {
                 _onItemTapped(3);
                 Navigator.pop(context);
@@ -106,7 +119,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             ListTile(
               leading: const Icon(Icons.report),
-              title: const Text('Rapports'),
+              title: const Text('Voir les rapports'),
               onTap: () {
                 _onItemTapped(4);
                 Navigator.pop(context);
@@ -114,7 +127,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             ListTile(
               leading: const Icon(Icons.checklist),
-              title: const Text('Fournisseurs'),
+              title: const Text('Voir les fournisseurs'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, AppConstants.routeFournisseurs);
@@ -126,6 +139,64 @@ class _AdminDashboardState extends State<AdminDashboard> {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, AppConstants.routeAllUserInfos);
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.storage_rounded),
+              title: const Text('Initialiser les collections'),
+              onTap: () async {
+                final bool? confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Confirmation'),
+                    content: const Text('Voulez-vous initialiser les collections de la base de données ?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Annuler'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                        ),
+                        child: const Text('Initialiser', style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirm == true) {
+                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+
+                  try {
+                    final initService = FirestoreInitService();
+                    await initService.initializeCollections();
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Collections initialisées avec succès'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  } catch (e) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Erreur lors de l\'initialisation: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
               },
             ),
           ],
@@ -150,17 +221,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
           },
         ),
         actions: [
-          IconButton(
-              icon: const Icon(Icons.person_outline_rounded),
-              onPressed: () {
-                Navigator.pushNamed(context, AppConstants.routeAllUserInfos);
-              }),
-          IconButton(
-            icon: const Icon(Icons.checklist),
-            onPressed: () {
-              Navigator.pushNamed(context, AppConstants.routeFournisseurs);
-            },
-          ),
           IconButton(
             icon: const Icon(Icons.logout, size: 20),
             tooltip: 'Se déconnecter',
